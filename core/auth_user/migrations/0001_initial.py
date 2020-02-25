@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 import core.auth_user.models
-import core.payments.stripe.models
 import django.contrib.auth.validators
 from django.db import migrations, models
 import django.utils.timezone
@@ -43,7 +42,7 @@ class Migration(migrations.Migration):
                 'abstract': False,
                 'swappable': 'AUTH_USER_MODEL',
             },
-            bases=(models.Model, core.payments.stripe.models.StripePaymentUserMixin),
+            bases=(models.Model),
             managers=[
                 ('objects', core.auth_user.models.AuthUserManager()),
             ],

@@ -44,9 +44,6 @@ def member_login(request):
             form.data = {'mobile': form.data.get('mobile')}
             return render_to_response('adminlte/login.html', {'form': form})
 
-        # old_schema=connection.schema_name
-        # connection.set_schema_to_public()
-
         mobile = form.cleaned_data.get('mobile')
         password = form.cleaned_data.get('password')
         user = authenticate(username=mobile, password=password)
@@ -65,7 +62,6 @@ def member_login(request):
         else:
             form.add_error(None, '密码错误，请重试')
             form.data = {'mobile': mobile}
-            # connection.set_schema(old_schema)
             return render_to_response('adminlte/login.html', {'form': form})
 
 

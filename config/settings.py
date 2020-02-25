@@ -45,13 +45,10 @@ DOMAIN_NAME = env('DOMAIN_NAME', default='youdan.com.au')
 BASE_URL = env('BASE_URL', default='http://localhost:8000')
 STARTUP_TIMESTAMP = int(time.time())
 
-TENANT_MODEL = "tenant.Tenant"
-DEFAULT_FILE_STORAGE = 'tenant_schemas.storage.TenantFileSystemStorage'
 # MULTITENANT_MAPPER_CLASS = 'apps.tenant.mapper.TenantMapper'
 
 # Application definition
 INSTALLED_APPS = (
-    'tenant_schemas',
     # WAGTAIL_APPS
     'wagtail.wagtailforms',
     'wagtail.wagtailredirects',
@@ -93,7 +90,6 @@ INSTALLED_APPS = (
     'core.adminlte',
     'core.messageset',
     'core.autocode',
-    'core.payments.stripe',
 
     'apps.tenant',
     'apps.member',
@@ -115,7 +111,6 @@ INSTALLED_APPS = (
     'rest_framework',
     'modelcluster',
     'taggit',
-    'djstripe',
     'stdimage',
     'rest_framework_swagger',
     'robots',
@@ -415,14 +410,6 @@ PRODUCT_PHOTO_FOLDER = 'product'
 ANONYMOUS_USER_ID = -1
 SITE_ID = 1
 
-# STRIPE PAYMENT
-# ------------------------------------------------------------------------------
-STRIPE_LIVE_PUBLIC_KEY = env('STRIPE_LIVE_PUBLIC_KEY')
-STRIPE_LIVE_SECRET_KEY = env('STRIPE_LIVE_SECRET_KEY')
-STRIPE_TEST_PUBLIC_KEY = env('STRIPE_TEST_PUBLIC_KEY')
-STRIPE_TEST_SECRET_KEY = env('STRIPE_TEST_SECRET_KEY')
-STRIPE_LIVE_MODE = env.bool('STRIPE_LIVE_MODE', default=False)
-DJSTRIPE_WEBHOOK_EVENT_CALLBACK = 'core.payments.stripe.tasks.webhook_event_callback'
 
 # TELSTRA SMS API KEY
 # ------------------------------------------------------------------------------
@@ -465,7 +452,6 @@ CACHES = {
     "default": {
         "LOCATION": "redis://127.0.0.1:6379/0",
         "BACKEND": "django_redis.cache.RedisCache",
-        # 'KEY_FUNCTION': 'db_multitenant.cache.helper.multitenant_key_func',
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }

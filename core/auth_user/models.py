@@ -6,7 +6,6 @@ from django.contrib.auth.models import AbstractUser, PermissionsMixin, UserManag
 
 from core.aliyun.email.tasks import email_send_task
 from core.auth_user.constant import ADMIN_GROUP, PREMIUM_MEMBER_GROUP, FREE_PREMIUM_GROUP
-from core.payments.stripe.models import StripePaymentUserMixin
 from core.sms.telstra_api_v2 import send_au_sms
 from ..messageset.models import NotificationContent, SiteMailContent
 
@@ -39,7 +38,7 @@ class AuthUserManager(UserManager):
             return super(AuthUserManager, self).get(mobile=mobile_or_email)
 
 
-class AuthUser(AbstractUser, StripePaymentUserMixin):
+class AuthUser(AbstractUser):
     WEBSITE = 'WEBSITE'
     WEIXIN = 'WEIXIN'
     USER_TYPE_CHOICES = (
@@ -48,7 +47,6 @@ class AuthUser(AbstractUser, StripePaymentUserMixin):
     )
     mobile = models.CharField(_('mobile'), max_length=128, unique=True, blank=True)
     type = models.CharField(_('type'), max_length=32, choices=USER_TYPE_CHOICES, blank=True, default=WEBSITE)
-    tenant_id = models.CharField(_('tenant_id'), max_length=128, blank=True)
     # if type is WEBSIT mobile field is mobile, if type is WEIXIN mobile field is openid
 
     objects = AuthUserManager()
@@ -57,11 +55,6 @@ class AuthUser(AbstractUser, StripePaymentUserMixin):
 
     class Meta(AbstractUser.Meta):
         swappable = 'AUTH_USER_MODEL'
-
-    @cached_property
-    def tenant(self):
-        from apps.tenant.models import Tenant
-        return Tenant.objects.filter(pk=self.tenant_id).first()
 
     @cached_property
     def is_premium(self):
@@ -97,11 +90,6 @@ class AuthUser(AbstractUser, StripePaymentUserMixin):
         user_groups = self.groups.values_list("name", flat=True)
         intersection = set(group_names).intersection(set(user_groups))
         return bool(intersection)
-
-    @cached_property
-    def subscriber(self):
-        # for StripePaymentUserMixin, return correct djstripe subscriber
-        return self
 
     @cached_property
     def is_admin(self):

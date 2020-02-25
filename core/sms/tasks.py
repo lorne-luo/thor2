@@ -17,10 +17,8 @@ log = logging.getLogger(__name__)
 @task
 def cleanup_sms_history():
     three_month_ago = timezone.now() - relativedelta(months=7)
-    for tenant in Tenant.objects.normal():
-        tenant.set_schema()
-        Sms.objects.filter(time__lt=three_month_ago).delete()
-        log.info('[SMS] Cleanup sms history older than 3 months.')
+    Sms.objects.filter(time__lt=three_month_ago).delete()
+    log.info('[SMS] Cleanup sms history older than 3 months.')
 
 
 @task

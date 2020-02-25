@@ -13,10 +13,9 @@ coreapi==2.3.3
 coreschema==0.0.4
 cryptography==2.3.1
 dj-stripe==1.0.0.post1
-Django==1.11.17
+Django==2.2.10
 django-autocomplete-light==3.2.10
 django-braces==1.8.1
-django-db-multitenant==0.3.2
 django-dbsettings==0.10.0
 django-environ==0.4.4
 django-extensions==1.9.7
@@ -31,7 +30,6 @@ django-redis==4.8.0
 django-rest-swagger==2.2.0
 django-stdimage==2.4.2
 django-taggit==0.21.3
-django-tenant-schemas==1.9.0
 django-tinymce4-lite==1.6.0
 django-treebeard==4.3
 django-webtest==1.7.8

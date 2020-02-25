@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 import core.auth_user.models
 import core.django.db
-import core.payments.stripe.models
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
@@ -48,7 +47,7 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ['id'],
             },
-            bases=(core.auth_user.models.UserProfileMixin, core.payments.stripe.models.StripePaymentUserMixin, models.Model),
+            bases=(core.auth_user.models.UserProfileMixin, models.Model),
         ),
         migrations.AddField(
             model_name='membershiporder',
