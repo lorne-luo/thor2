@@ -4,9 +4,7 @@ import logging
 import os
 import uuid
 
-import sys
-from django.core.cache import cache
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.db.models import Sum, F, Avg, Min, Max
@@ -23,7 +21,6 @@ from core.django.constants import COUNTRIES_CHOICES
 from core.django.models import PinYinFieldModelMixin, ResizeUploadedImageModelMixin, TenantModelMixin
 from config.settings import PRODUCT_PHOTO_FOLDER, MEDIA_URL, MEDIA_ROOT
 
-from apps.member.models import Seller
 from apps.store.models import Page
 from core.django.storage import OverwriteStorage
 
@@ -64,49 +61,7 @@ def get_product_pic_path(instance, filename):
     return file_path
 
 
-class ProductManager(models.Manager):
-    DEFAULT_CACHE_KEY = 'QUERYSET_CACHE_DEFAULT_PRODUCT'
-
-    def all_for_seller(self, obj):
-        if isinstance(obj, Seller):
-            seller_id = obj.pk
-        elif isinstance(obj, AuthUser) and obj.is_seller:
-            seller_id = obj.profile.pk
-        else:
-            return Product.objects.none()
-
-        qs = super(ProductManager, self).get_queryset().filter(is_active=True, seller_id=seller_id)
-        return qs
-
-    def order_by_usage_for_seller(self, qs, seller_id):
-        return qs.annotate(use_counter=models.Count(models.Case(
-            models.When(orderproduct__order__seller_id=seller_id, then=1),
-            default=0,
-            output_field=models.IntegerField()
-        ))).order_by('-use_counter')
-
-    def all_for_customer(self, obj):
-        from apps.customer.models import Customer
-        if isinstance(obj, Customer):
-            customer_id = obj.pk
-        elif isinstance(obj, AuthUser) and obj.is_customer:
-            customer_id = obj.profile.pk
-        else:
-            return Product.objects.none()
-
-        qs = super(ProductManager, self).get_queryset()
-        return self.order_by_usage_for_customer(qs, customer_id)
-
-    def order_by_usage_for_customer(self, qs, customer_id):
-        return qs.filter(is_active=True).annotate(use_counter=models.Count(models.Case(
-            models.When(orderproduct__order__customer_id=customer_id, then=1),
-            default=0,
-            output_field=models.IntegerField()
-        ))).order_by('-use_counter')
-
-
 class Product(ResizeUploadedImageModelMixin, PinYinFieldModelMixin, TenantModelMixin, models.Model):
-    seller = models.ForeignKey(Seller, blank=True, null=True)
     code = models.CharField(_('code'), max_length=32, blank=True)
     name_en = models.CharField(_('name_en'), max_length=128, blank=True)
     name_cn = models.CharField(_('name_cn'), max_length=128, blank=True)
@@ -167,7 +122,7 @@ class Product(ResizeUploadedImageModelMixin, PinYinFieldModelMixin, TenantModelM
     def __init__(self, *args, **kwargs):
         super(Product, self).__init__(*args, **kwargs)
         self.set_uuid()
-        field_names = ['seller', 'name_en', 'name_cn', 'brand_id', 'brand_en', 'brand_cn']
+        field_names = ['name_en', 'name_cn', 'brand_id', 'brand_en', 'brand_cn']
         for field_name in set(field_names):
             init_value = self.get_attr_by_str(field_name)
             setattr(self._state, field_name, init_value)

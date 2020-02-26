@@ -17,7 +17,6 @@ from core.aliyun.email.tasks import email_send_task
 from core.auth_user.models import AuthUser, UserProfileMixin
 from core.django.models import PinYinFieldModelMixin, ResizeUploadedImageModelMixin, TenantModelMixin
 
-from apps.member.models import Seller
 from core.django.storage import OverwriteStorage
 
 
@@ -37,7 +36,6 @@ class InterestTag(models.Model):
 
 class Customer(PinYinFieldModelMixin, UserProfileMixin, TenantModelMixin, models.Model):
     auth_user = models.OneToOneField(AuthUser, on_delete=models.CASCADE, related_name='customer', null=True, blank=True)
-    seller = models.ForeignKey(Seller, blank=True, null=True, verbose_name=_('seller'))
     name = models.CharField(_('姓名'), max_length=30, null=False, blank=False)
     remark = models.CharField(_('备注'), max_length=255, blank=True)
     email = models.EmailField(_('Email'), max_length=255, blank=True)

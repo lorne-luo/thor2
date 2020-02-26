@@ -144,9 +144,7 @@ class Seller(UserProfileMixin, StripePaymentUserMixin, TenantModelMixin, models.
     @staticmethod
     def create_seller(mobile, email, password, premium_account=False):
         tenant = Tenant.create_tenant()
-        user = AuthUser.objects.create_user(mobile=mobile, email=email, password=password)
-        user.tenant_id = tenant.pk
-        user.save(update_fields=['tenant_id'])
+        user = AuthUser.objects.create_staff(mobile=mobile, email=email, password=password, tenant_id=tenant.pk)
 
         member_group = Group.objects.get(name=MEMBER_GROUP)
         user.groups.add(member_group)

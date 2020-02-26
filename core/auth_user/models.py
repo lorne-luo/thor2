@@ -29,6 +29,9 @@ class AuthUserManager(UserManager):
     def create_user(self, mobile=None, email=None, password=None, **extra_fields):
         return self._create_user(password, False, False, mobile, email, **extra_fields)
 
+    def create_staff(self, mobile=None, email=None, password=None, **extra_fields):
+        return self._create_user(password, True, False, mobile, email, **extra_fields)
+
     def create_superuser(self, mobile, email, password, **extra_fields):
         return self._create_user(password, True, True, mobile=mobile, email=email, **extra_fields)
 

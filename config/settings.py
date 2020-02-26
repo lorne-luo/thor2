@@ -102,13 +102,11 @@ INSTALLED_APPS = (
     'apps.customer',
     'apps.product',
     'apps.order',
-    'apps.store',
     'apps.report',
     'apps.schedule',
     'apps.weixin',
     'core.sms',
     'utils',
-    'apps.wagtail.home',
 
     # third_app
     'django_js_reverse',
@@ -129,13 +127,13 @@ TENANT_APPS = (
     'apps.product',
     'apps.order',
     'apps.express',
-    'apps.store',
     'apps.report',
     'apps.schedule',
     'core.sms',
 )
 
 SHARED_APPS = tuple(frozenset(INSTALLED_APPS).difference(frozenset(TENANT_APPS)))
+
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -415,6 +413,9 @@ PRODUCT_PHOTO_FOLDER = 'product'
 ANONYMOUS_USER_ID = -1
 SITE_ID = 1
 
+DEFAULT_CURRENCY='AUDCNH'
+
+
 # STRIPE PAYMENT
 # ------------------------------------------------------------------------------
 STRIPE_LIVE_PUBLIC_KEY = env('STRIPE_LIVE_PUBLIC_KEY')
@@ -429,10 +430,6 @@ DJSTRIPE_WEBHOOK_EVENT_CALLBACK = 'core.payments.stripe.tasks.webhook_event_call
 TELSTRA_CLIENT_KEY = env('TELSTRA_CLIENT_KEY', default='')
 TELSTRA_CLIENT_SECRET = env('TELSTRA_CLIENT_SECRET', default='')
 ADMIN_MOBILE_NUMBER = env('ADMIN_MOBILE_NUMBER', default='')
-
-# SENDGRID EMAIL API
-# ------------------------------------------------------------------------------
-SENDGRID_API_KEY = env('SENDGRID_API_KEY', default='')
 
 # ALIYUN SMS
 # ------------------------------------------------------------------------------
@@ -472,36 +469,9 @@ CACHES = {
     }
 }
 
-# WAGTAIL
-# ------------------------------------------------------------------------------
-WAGTAIL_SITE_NAME = SITE_NAME
-WAGTAILSEARCH_BACKENDS = {
-    'default': {
-        'BACKEND': 'wagtail.wagtailsearch.backends.db',
-    }
-}
-# from wagtail.wagtailembeds.oembed_providers import youtube, vimeo
-# WAGTAILEMBEDS_FINDERS = [{
-#         'class': 'wagtail.wagtailembeds.finders.oembed',
-#         'providers': [youtube, vimeo],
-# }]
-# WAGTAILSEARCH_RESULTS_TEMPLATE = 'myapp/search_results.html'
-# WAGTAILSEARCH_RESULTS_TEMPLATE_AJAX = 'myapp/includes/search_listing.html'
-# WAGTAILSEARCH_HITS_MAX_AGE = 14
-# WAGTAILADMIN_RECENT_EDITS_LIMIT = 5
-WAGTAILIMAGES_MAX_UPLOAD_SIZE = 1 * 1024 * 1024  # 1Mb
-WAGTAILADMIN_NOTIFICATION_FROM_EMAIL = ADMIN_EMAIL
-WAGTAIL_ENABLE_UPDATE_CHECK = False  # Wagtail update notifications
-WAGTAIL_ALLOW_UNICODE_SLUGS = False
-WAGTAIL_DATE_FORMAT = '%Y/%m/%d'
-WAGTAIL_DATETIME_FORMAT = '%Y/%m/%d %H:%M'
-
-# from db_multitenant.utils import update_from_env
-#
-# update_from_env(database_settings=DATABASES['default'],
-#                 cache_settings=CACHES['default'])
-
 # LOCAL.PY
 # ------------------------------------------------------------------------------
-if os.path.exists(os.path.join(os.path.dirname(__file__), "local.py")):
+try:
     from .local import *
+except ImportError:
+    pass
