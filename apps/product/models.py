@@ -4,6 +4,7 @@ import logging
 import os
 import uuid
 
+from django.conf import settings
 from django.urls import reverse
 from django.core.validators import FileExtensionValidator
 from django.db import models
@@ -108,7 +109,6 @@ class Product(ResizeUploadedImageModelMixin, PinYinFieldModelMixin, TenantModelM
         ('alias', Style.NORMAL, False),
         ('alias', Style.FIRST_LETTER, False),
     ]
-    objects = ProductManager()
 
     class Meta:
         verbose_name_plural = _('Product')
@@ -227,3 +227,16 @@ def product_deleted(sender, **kwargs):
     instance = kwargs['instance']
     if instance.pic and os.path.exists(instance.pic.path):
         default_storage.delete(instance.pic.path)
+
+
+class ProductVariant(models.Model):
+    sku = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, blank=True)
+    price_override_amount = models.DecimalField(
+        max_digits=settings.DEFAULT_MAX_DIGITS,
+        decimal_places=settings.DEFAULT_DECIMAL_PLACES,
+        blank=True,
+        null=True,
+    )
+    product = models.ForeignKey(Product, related_name="variants", on_delete=models.CASCADE)
+    # images = models.ManyToManyField("ProductImage", through="VariantImage")

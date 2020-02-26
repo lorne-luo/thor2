@@ -325,7 +325,11 @@ TINYMCE_DEFAULT_CONFIG = {
     'language': 'zh_CN'
 }
 
+# CURRENCY
+# ------------------------------------------------------------------------------
 DEFAULT_CURRENCY='AUDCNH'
+DEFAULT_DECIMAL_PLACES = 2
+DEFAULT_MAX_DIGITS = 12
 
 # REST_FRAMEWORK
 # ------------------------------------------------------------------------------
