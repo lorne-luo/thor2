@@ -1,12 +1,13 @@
 from django.contrib.auth.models import User
-from apps.member.models import Seller
+
+from apps.customer.models import Customer
 
 
 class MyCustomBackend:
     def authenticate(self, username=None, password=None):
         try:
-            user = Seller.objects.get(username=username)
-        except Seller.DoesNotExist:
+            user = Customer.objects.get(username=username)
+        except Customer.DoesNotExist:
             return None
         else:
             if user.check_password(password):
@@ -30,7 +31,7 @@ class MyCustomBackend:
 class UsernameBackend:
     def authenticate(self, username=None):
         try:
-            user = Seller.objects.get(username=username)
+            user = Customer.objects.get(username=username)
             return user
-        except Seller.DoesNotExist:
+        except Customer.DoesNotExist:
             return None

@@ -91,20 +91,16 @@ INSTALLED_APPS = (
     'core.messageset',
     'core.autocode',
 
-    'apps.tenant',
-    'apps.member',
     'apps.carrier_tracker',
     'apps.express',
     'apps.customer',
     'apps.product',
     'apps.order',
-    'apps.store',
     'apps.report',
     'apps.schedule',
     'apps.weixin',
     'core.sms',
     'utils',
-    'apps.wagtail.home',
 
     # third_app
     'django_js_reverse',
@@ -117,20 +113,6 @@ INSTALLED_APPS = (
     'apps.forex',
 )
 
-TENANT_APPS = (
-    # your tenant-specific apps
-    'apps.member',
-    'apps.customer',
-    'apps.product',
-    'apps.order',
-    'apps.express',
-    'apps.store',
-    'apps.report',
-    'apps.schedule',
-    'core.sms',
-)
-
-SHARED_APPS = tuple(frozenset(INSTALLED_APPS).difference(frozenset(TENANT_APPS)))
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -343,6 +325,8 @@ TINYMCE_DEFAULT_CONFIG = {
     'language': 'zh_CN'
 }
 
+DEFAULT_CURRENCY='AUDCNH'
+
 # REST_FRAMEWORK
 # ------------------------------------------------------------------------------
 REST_FRAMEWORK = {
@@ -416,10 +400,6 @@ SITE_ID = 1
 TELSTRA_CLIENT_KEY = env('TELSTRA_CLIENT_KEY', default='')
 TELSTRA_CLIENT_SECRET = env('TELSTRA_CLIENT_SECRET', default='')
 ADMIN_MOBILE_NUMBER = env('ADMIN_MOBILE_NUMBER', default='')
-
-# SENDGRID EMAIL API
-# ------------------------------------------------------------------------------
-SENDGRID_API_KEY = env('SENDGRID_API_KEY', default='')
 
 # ALIYUN SMS
 # ------------------------------------------------------------------------------

@@ -4,18 +4,14 @@ from django.conf import settings
 from django.contrib.auth import views as auth_views
 from wagtail.contrib.wagtailsitemaps.views import sitemap
 
-from wagtail.wagtailadmin import urls as wagtailadmin_urls
 from wagtail.wagtailcore import urls as wagtail_urls
-from wagtail.wagtaildocs import urls as wagtaildocs_urls
-from wagtail.wagtailimages import urls as wagtailimages_urls
 
 from apps.order.views import OrderDetailView
-# from apps.wagtail.search.views import search as wagtail_search
 from core.api.views import GitCommitInfoView
 from core.auth_user.views import ChangePasswordView
 from core import auth_user
-from apps.member.forms import CustomPasswordResetForm, CustomSetPasswordForm
-from apps.member.views import member_login, member_logout
+from apps.auth_user.forms import CustomPasswordResetForm, CustomSetPasswordForm
+from apps.auth_user.views import member_login, member_logout
 
 def if_installed(appname, *args, **kwargs):
     ret = url(*args, **kwargs)
@@ -23,22 +19,12 @@ def if_installed(appname, *args, **kwargs):
         ret.resolve = lambda *args: None
     return ret
 
-
-wagtail_urlpatterns = [
-    # url(r'^admin/', include(wagtailadmin_urls)),
-    # url(r'^documents/', include(wagtaildocs_urls)),
-    # url(r'^images/', include(wagtailimages_urls)),
-    # url(r'^search/$', wagtail_search, name='wagtail_search'),
-    # url(r'^pages/', include(wagtail_urls)),
-]
-
 apps_urlpatterns = [
     url(r'^$', member_login,name='member-login'),
     url(r'^logout/$', member_logout,name='member-logout'),
     # url(r'^djadmin/', include(admin.site.urls)),
     url(r'^customer/', include('apps.customer.urls', namespace='customer')),
-    url(r'^member/', include('apps.member.urls', namespace='member')),
-    url(r'^store/', include('apps.store.urls', namespace='store')),
+    url(r'^user/', include('apps.auth_user.urls', namespace='user')),
     url(r'^product/', include('apps.product.urls', namespace='product')),
     url(r'^order/', include('apps.order.urls', namespace='order')),
     url(r'^express/', include('apps.express.urls', namespace='express')),
@@ -56,7 +42,7 @@ api_urlpatterns = [
     url(r'^customer/', include('apps.customer.api.urls')),
     url(r'^carrier_tracker/', include('apps.carrier_tracker.api.urls')),
     url(r'^express/', include('apps.express.api.urls')),
-    url(r'^member/', include('apps.member.api.urls')),
+    url(r'^user/', include('apps.auth_user.api.urls')),
     url(r'^order/', include('apps.order.api.urls')),
     url(r'^product/', include('apps.product.api.urls')),
     url(r'^report/', include('apps.report.api.urls')),
@@ -66,7 +52,7 @@ api_urlpatterns = [
     url(r'^version/$', GitCommitInfoView.as_view(), name='api_version'),
 ]
 
-urlpatterns = wagtail_urlpatterns + apps_urlpatterns + [
+urlpatterns = apps_urlpatterns + [
     # REST API
     url(r'^api/', include(api_urlpatterns, namespace='api')),
 

@@ -1,29 +1,25 @@
 # coding=utf-8
-from braces.views import MultiplePermissionsRequiredMixin
 from django.contrib import messages
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse
 from django.views.generic import ListView, CreateView, UpdateView
 
-from core.django.permission import SellerRequiredMixin
 from core.django.views import CommonContextMixin
-from .models import ExpressCarrier
 from . import forms
+from .models import ExpressCarrier
 
 
 class CarrierInfoRequiredMixin(object):
     def prompt_incomplete_carrier(self, **kwargs):
-        from apps.member.models import Seller
-        if isinstance(self.request.profile, Seller):
-            incomplete_carrier = ExpressCarrier.get_incomplete_carrier()
-            if incomplete_carrier:
-                msg = '物流公司信息不完整，<a href="%s">更新完整信息</a>程序员哥哥才能提供更好帮助.' % reverse(
-                    'express:expresscarrier-update', args=[incomplete_carrier.pk])
-                messages.warning(self.request, msg)
+        incomplete_carrier = ExpressCarrier.get_incomplete_carrier()
+        if incomplete_carrier:
+            msg = '物流公司信息不完整，<a href="%s">更新完整信息</a>程序员哥哥才能提供更好帮助.' % reverse(
+                'express:expresscarrier-update', args=[incomplete_carrier.pk])
+            messages.warning(self.request, msg)
 
 
 # views for ExpressCarrier
 
-class ExpressCarrierListView(CarrierInfoRequiredMixin, SellerRequiredMixin, CommonContextMixin, ListView):
+class ExpressCarrierListView(CarrierInfoRequiredMixin, CommonContextMixin, ListView):
     model = ExpressCarrier
     template_name_suffix = '_list'  # express/expresscarrier_list.html
 
@@ -32,8 +28,7 @@ class ExpressCarrierListView(CarrierInfoRequiredMixin, SellerRequiredMixin, Comm
         return super(ExpressCarrierListView, self).get_context_data(**kwargs)
 
 
-class ExpressCarrierAddView(SellerRequiredMixin, CommonContextMixin,
-                            CreateView):
+class ExpressCarrierAddView(CommonContextMixin, CreateView):
     model = ExpressCarrier
     template_name = 'adminlte/common_form.html'
 
@@ -50,7 +45,7 @@ class ExpressCarrierAddView(SellerRequiredMixin, CommonContextMixin,
         return super(ExpressCarrierAddView, self).form_valid(form)
 
 
-class ExpressCarrierUpdateView(SellerRequiredMixin, CommonContextMixin,
+class ExpressCarrierUpdateView(CommonContextMixin,
                                UpdateView):
     model = ExpressCarrier
     template_name = 'adminlte/common_form.html'

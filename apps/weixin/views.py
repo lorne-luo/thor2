@@ -1,21 +1,18 @@
-# coding=utf-8
 import json
 import logging
 
 from django.contrib.auth import login
-from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import urlunquote
 from weixin.base import Map
 from weixin.login import WeixinLogin
 
-from . import conf
 from apps.customer.models import Customer
-from apps.member.models import Seller
 from core.auth_user.models import AuthUser
+from . import conf
 from .models import WxApp, WxPayment, WxReturnCode, WxUser
 from ..order.models import Order
 

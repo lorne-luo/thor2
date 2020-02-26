@@ -8,10 +8,10 @@ from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404, render_to_response, redirect, resolve_url
 from django.template import RequestContext
 from django.contrib.auth import authenticate, login, logout
+from django.urls import reverse_lazy,reverse
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.cache import never_cache
-from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.contrib import messages
 from django.conf import settings

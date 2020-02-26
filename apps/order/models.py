@@ -1,27 +1,25 @@
 # coding=utf-8
 import logging
 from decimal import Decimal
-from enum import Enum
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
-from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
-from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-from apps.member.models import Seller
-from core.django.constants import CURRENCY_CHOICES
+from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
+from weixin.pay import WeixinError
+
 from core.aliyun.sms.service import send_cn_sms
 from core.django.models import TenantModelMixin
-from ..schedule.models import forex
-from weixin.pay import WeixinPay, WeixinError, WeixinPayError
-from ..product.models import Product
 from ..customer.models import Customer, Address
+from ..product.models import Product
+from ..schedule.models import forex
 from ..store.models import Store
 
 log = logging.getLogger(__name__)
@@ -63,7 +61,6 @@ class OrderManager(models.Manager):
 
 class Order(TenantModelMixin, models.Model):
     uid = models.CharField(unique=True, max_length=12, null=True, blank=True)
-    seller = models.ForeignKey(Seller, blank=True, null=True)
     customer = models.ForeignKey(Customer, blank=False, null=False, verbose_name=_('客户'))
     address = models.ForeignKey(Address, blank=True, null=True, verbose_name=_('地址'))
     address_text = models.CharField(_('地址'), max_length=255, null=True, blank=True)
@@ -76,7 +73,6 @@ class Order(TenantModelMixin, models.Model):
     product_cost_rmb = models.DecimalField(_('货物成本'), max_digits=8, decimal_places=2, blank=True, null=True)
     shipping_fee = models.DecimalField(_('快递费用'), max_digits=8, decimal_places=2, blank=True, null=True)
     ship_time = models.DateTimeField(auto_now_add=False, editable=True, blank=True, null=True, verbose_name=_('寄出时间'))
-    currency = models.CharField(_('货币'), max_length=128, choices=CURRENCY_CHOICES, blank=True)
     total_cost_aud = models.DecimalField(_('总成本'), max_digits=8, decimal_places=2, blank=True, null=True)
     total_cost_rmb = models.DecimalField(_('总承包'), max_digits=8, decimal_places=2, blank=True, null=True)
     origin_sell_rmb = models.DecimalField(_('原价'), max_digits=8, decimal_places=2, blank=True, null=True)
@@ -106,7 +102,6 @@ class Order(TenantModelMixin, models.Model):
 
     def __init__(self, *args, **kwargs):
         super(Order, self).__init__(*args, **kwargs)
-        self._currency_original = self.currency
 
     @classmethod
     def generate_uid(cls):
@@ -129,9 +124,6 @@ class Order(TenantModelMixin, models.Model):
         return None
 
     def sms_shipping(self):
-        if not self.seller.is_premium:
-            return
-
         mobile = self.get_customer_mobile()
         if not mobile or self.shipping_msg_sent:
             return
@@ -145,9 +137,6 @@ class Order(TenantModelMixin, models.Model):
             self.save(update_fields=['shipping_msg_sent'])
 
     def sms_delivered(self):
-        if not self.seller.is_premium:
-            return
-
         mobile = self.get_customer_mobile()
         if not mobile or self.delivery_msg_sent:
             return
@@ -230,9 +219,8 @@ class Order(TenantModelMixin, models.Model):
             self.set_finish_time()
         self.save()
         if status_value == ORDER_STATUS.SHIPPING:
-            if self.seller and self.seller.is_premium:
-                self.notify_id_upload()
-                self.sms_shipping()
+            self.notify_id_upload()
+            self.sms_shipping()
         self.update_price()
 
     def update_monthly_report(self):
@@ -246,8 +234,6 @@ class Order(TenantModelMixin, models.Model):
 
     @cached_property
     def id_upload_url(self):
-        if not self.seller or not self.seller.is_premium:
-            return None
         unuploads = self.express_orders.filter(id_upload=False)
         if unuploads.exists():
             tracker = unuploads.first().carrier.tracker
@@ -257,8 +243,7 @@ class Order(TenantModelMixin, models.Model):
     def notify_id_upload(self):
         if self.id_upload_url:
             content = '<a target="_blank" href="%s">%s</a>需上传身份证, <a target="_blank" href="%s">点击上传</a>.' % (
-            self.public_url, self, self.id_upload_url)
-            self.seller.send_notification('上传身份证', content)
+                self.public_url, self, self.id_upload_url)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.set_uid()
@@ -267,10 +252,6 @@ class Order(TenantModelMixin, models.Model):
 
         if self.address:
             self.address_text = self.address.get_text()
-
-        if self._state.adding or self._currency_original != self.currency:
-            # new creating or currency changed, update forex rate
-            self.aud_rmb_rate = getattr(forex, self.currency or self.seller.primary_currency)
 
         self.total_cost_aud = self.product_cost_aud or 0
         self.product_cost_rmb = self.total_cost_aud * self.get_aud_rmb_rate()
@@ -300,7 +281,7 @@ class Order(TenantModelMixin, models.Model):
         if self.aud_rmb_rate:
             return self.aud_rmb_rate
 
-        return getattr(forex, self.currency or self.seller.primary_currency)
+        return getattr(forex, settings.DEFAULT_CURRENCY)
 
     def update_price(self, update_sell_price=False):
         if not self.products.count() and not self.express_orders.count():
@@ -418,9 +399,7 @@ class Order(TenantModelMixin, models.Model):
         subject = '%s 全部寄达.' % self
         content = '<a target="_blank" href="%s">%s</a> 全部寄达.' % (self.public_url, self)
 
-        self.seller.send_notification(subject, content)
-        # self.seller.send_email(subject, content)
-        # self.customer.send_email(subject, content)
+        # self.seller.send_notification(subject, content)
 
     def get_track_express(self):
         """get express order need to be track"""
@@ -525,7 +504,7 @@ class OrderProduct(TenantModelMixin, models.Model):
         return '%s = %d X %s' % (self.name, self.sell_price_rmb, self.amount)
 
     def get_last_sale(self):
-        last_sale = OrderProduct.objects.filter(order__seller_id=self.order.seller_id, product_id=self.product_id
+        last_sale = OrderProduct.objects.filter(product_id=self.product_id
                                                 ).exclude(sell_price_rmb=0
                                                           ).exclude(pk=self.pk).order_by('-create_time').first()
         return last_sale

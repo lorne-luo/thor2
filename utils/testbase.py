@@ -1,11 +1,5 @@
-from django_webtest import WebTest
-from django.core import management
-from django.core.urlresolvers import reverse
-from django.test import LiveServerTestCase, TestCase
-from django.contrib.auth.models import Group
 from django.test.client import Client
-# from rest_framework.test import APIClient
-from apps.member.models import Seller
+from django_webtest import WebTest
 
 
 class BaseWebTest(WebTest):
