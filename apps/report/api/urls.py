@@ -6,7 +6,7 @@ router = PostHackedRouter()
 router.include_root_view = False
 
 # reverse('api:report-list'), reverse('api:report-detail', kwargs={'pk': 1})
-router.register(r'report', views.MonthlyReportViewSet, base_name='report')
+router.register(r'report', views.MonthlyReportViewSet, basename='report')
 
 urlpatterns = [
 

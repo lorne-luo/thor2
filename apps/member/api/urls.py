@@ -11,6 +11,6 @@ urlpatterns = [
 
 router = PostHackedRouter()
 router.include_root_view = False
-router.register(r'seller', views.SellerViewSet, base_name='seller')
+router.register(r'seller', views.SellerViewSet, basename='seller')
 
 urlpatterns += router.urls

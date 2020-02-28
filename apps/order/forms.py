@@ -87,7 +87,7 @@ class OrderUpdateForm(NoManytoManyHintModelForm):
 
     class Meta:
         model = Order
-        fields = ['customer', 'address', 'currency', 'status', 'is_paid', 'paid_time', 'ship_time',
+        fields = ['customer', 'address', 'status', 'is_paid', 'paid_time', 'ship_time',
                   'cost_aud', 'sell_rmb', 'sell_price_rmb', 'finish_time']
 
     def __init__(self, *args, **kwargs):
@@ -146,7 +146,7 @@ class OrderUpdateForm(NoManytoManyHintModelForm):
 class OrderDetailForm(NoManytoManyHintModelForm):
     class Meta:
         model = Order
-        fields = ['customer', 'address', 'currency', 'is_paid', 'status', 'total_amount', 'product_cost_aud',
+        fields = ['customer', 'address', 'is_paid', 'status', 'total_amount', 'product_cost_aud',
                   'product_cost_rmb',
                   'shipping_fee', 'ship_time', 'total_cost_aud', 'total_cost_rmb', 'origin_sell_rmb', 'sell_price_rmb',
                   'profit_rmb', 'finish_time']
@@ -167,7 +167,7 @@ class OrderProductDetailForm(NoManytoManyHintModelForm):
     class Meta:
         model = OrderProduct
         fields = ['order', 'product', 'name', 'amount', 'sell_price_rmb', 'total_price_rmb', 'cost_price_aud',
-                  'total_price_aud', 'store']
+                  'total_price_aud']
 
 
 # class OrderProductUpdateForm(NoManytoManyHintModelForm):
@@ -199,7 +199,7 @@ class OrderProductInlineForm(NoManytoManyHintModelForm):
 
     class Meta:
         model = OrderProduct
-        fields = ['product', 'order', 'description', 'amount', 'sell_price_rmb', 'sum_price', 'cost_price_aud', 'store']
+        fields = ['product', 'order', 'description', 'amount', 'sell_price_rmb', 'sum_price', 'cost_price_aud']
 
     def __init__(self, *args, **kwargs):
         super(OrderProductInlineForm, self).__init__(*args, **kwargs)

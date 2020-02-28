@@ -20,7 +20,6 @@ from core.django.models import TenantModelMixin
 from ..customer.models import Customer, Address
 from ..product.models import Product
 from ..schedule.models import forex
-from ..store.models import Store
 
 log = logging.getLogger(__name__)
 
@@ -61,8 +60,8 @@ class OrderManager(models.Manager):
 
 class Order(TenantModelMixin, models.Model):
     uid = models.CharField(unique=True, max_length=12, null=True, blank=True)
-    customer = models.ForeignKey(Customer, blank=False, null=False, verbose_name=_('客户'))
-    address = models.ForeignKey(Address, blank=True, null=True, verbose_name=_('地址'))
+    customer = models.ForeignKey(Customer, blank=False, null=False, verbose_name=_('客户'), on_delete=models.CASCADE)
+    address = models.ForeignKey(Address, blank=True, null=True, verbose_name=_('地址'), on_delete=models.CASCADE)
     address_text = models.CharField(_('地址'), max_length=255, null=True, blank=True)
     is_paid = models.BooleanField(default=False, verbose_name=_('已支付'))
     paid_time = models.DateTimeField(auto_now_add=False, editable=True, blank=True, null=True, verbose_name=_('支付时间'))
@@ -482,8 +481,9 @@ class Order(TenantModelMixin, models.Model):
 
 
 class OrderProduct(TenantModelMixin, models.Model):
-    order = models.ForeignKey(Order, blank=False, null=False, verbose_name=_('Order'), related_name='products')
-    product = models.ForeignKey(Product, blank=True, null=True, verbose_name=_('Product'))
+    order = models.ForeignKey(Order, blank=False, null=False, verbose_name=_('Order'), related_name='products',
+                              on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, blank=True, null=True, verbose_name=_('Product'), on_delete=models.CASCADE)
     name = models.CharField(_('Name'), max_length=128, null=True, blank=True, help_text='产品名称')
     description = models.CharField(_('Description'), max_length=128, null=True, blank=True, help_text='备注')
     amount = models.IntegerField(_('Amount'), default=1, blank=False, null=False, help_text='数量')
@@ -493,7 +493,6 @@ class OrderProduct(TenantModelMixin, models.Model):
     cost_price_aud = models.DecimalField(_('Cost Price AUD'), max_digits=8, decimal_places=2, default=0, blank=False,
                                          null=False, help_text='成本')
     total_price_aud = models.DecimalField(_('Total AUD'), max_digits=8, decimal_places=2, blank=True, null=True)
-    store = models.ForeignKey(Store, blank=True, null=True, verbose_name=_('Store'))
     is_purchased = models.BooleanField(default=False)
     create_time = models.DateTimeField(_('Create Time'), auto_now_add=True, editable=True)
 

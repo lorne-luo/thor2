@@ -1,6 +1,6 @@
 # coding=utf-8
 from rest_framework import serializers
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from core.messageset.models import Notification, NotificationContent, SiteMailContent, SiteMailReceive, SiteMailSend, \
     Task
 

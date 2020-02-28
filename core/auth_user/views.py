@@ -1,8 +1,6 @@
 # coding=utf-8
-from django.contrib.auth.views import password_change
-from django.http import HttpResponseRedirect
+from django.contrib.auth.views import PasswordChangeView
 # Create your views here.
-from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 
 from core.django.views import CommonPageViewMixin
@@ -18,20 +16,10 @@ class OwnerViewSetMixin(object):
         else:
             return qs.none()
 
-class ChangePasswordView(CommonPageViewMixin, TemplateView):
-    def post(self, request, **kwargs):
-        self.request = request
-        context = super(ChangePasswordView, self).get_context_data(**kwargs)
-        return self.render_to_response(context)
 
-    def render_to_response(self, context, **response_kwargs):
-        context['page_title'] = '修改密码'
-        template_response = password_change(
-            self.request,
-            template_name='adminlte/change-password.html',
-            extra_context=context
-        )
-        return template_response
+class ChangePasswordView(CommonPageViewMixin, PasswordChangeView):
+    template_name = 'adminlte/change-password.html'
+    title = '修改密码'
 
 
 class ChangePasswordDoneView(CommonPageViewMixin, TemplateView):

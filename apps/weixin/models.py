@@ -4,7 +4,7 @@ import time
 import logging
 from . import conf as wx_conf
 from django.db import models
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from wechat_sdk import WechatConf, WechatBasic

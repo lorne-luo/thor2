@@ -6,8 +6,8 @@ router = PostHackedRouter()
 router.include_root_view = False
 
 # reverse('api:brand-list'), reverse('api:brand-detail', kwargs={'pk': 1})
-router.register(r'brand', views.BrandViewSet, base_name='brand')
-router.register(r'product', views.ProductViewSet, base_name='product')
+router.register(r'brand', views.BrandViewSet, basename='brand')
+router.register(r'product', views.ProductViewSet, basename='product')
 
 urlpatterns = [
     url(r'^product/product/autocomplete/$', views.ProductAutocomplete.as_view(), name='product-autocomplete'),

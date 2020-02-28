@@ -22,7 +22,7 @@ class ProductAddForm(NoManytoManyHintModelForm):
 class ProductAdminForm(ProductAddForm):
     class Meta:
         model = Product
-        fields = ['name_en', 'name_cn', 'alias', 'pic', 'brand', 'brand_en', 'brand_cn', 'seller']
+        fields = ['name_en', 'name_cn', 'alias', 'pic', 'brand', 'brand_en', 'brand_cn']
 
 
 class ProductDetailForm(NoManytoManyHintModelForm):

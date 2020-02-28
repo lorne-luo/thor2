@@ -1,7 +1,7 @@
-from rest_framework.routers import DefaultRouter, Route, DynamicDetailRoute, DynamicListRoute
+from rest_framework.routers import Route, DynamicRoute, SimpleRouter
 
 
-class PostHackedRouter(DefaultRouter):
+class PostHackedRouter(SimpleRouter):
     """ hack post method for detail api, make post method avaliable for partial_update action """
 
     routes = [
@@ -13,14 +13,15 @@ class PostHackedRouter(DefaultRouter):
                 'post': 'create'
             },
             name='{basename}-list',
+            detail=False,
             initkwargs={'suffix': 'List'}
         ),
-        # Dynamically generated list routes.
-        # Generated using @list_route decorator
-        # on methods of the viewset.
-        DynamicListRoute(
-            url=r'^{prefix}/{methodname}{trailing_slash}$',
-            name='{basename}-{methodnamehyphen}',
+        # Dynamically generated list routes. Generated using
+        # @action(detail=False) decorator on methods of the viewset.
+        DynamicRoute(
+            url=r'^{prefix}/{url_path}{trailing_slash}$',
+            name='{basename}-{url_name}',
+            detail=False,
             initkwargs={}
         ),
         # Detail route.
@@ -30,18 +31,19 @@ class PostHackedRouter(DefaultRouter):
                 'get': 'retrieve',
                 'put': 'update',
                 'patch': 'partial_update',
-                'post': 'partial_update', # some browser cannot patch data, use post instead
+                'post': 'partial_update',  # some browser cannot patch data, use post instead
                 'delete': 'destroy'
             },
             name='{basename}-detail',
+            detail=True,
             initkwargs={'suffix': 'Instance'}
         ),
-        # Dynamically generated detail routes.
-        # Generated using @detail_route decorator on methods of the viewset.
-        DynamicDetailRoute(
-            url=r'^{prefix}/{lookup}/{methodname}{trailing_slash}$',
-            name='{basename}-{methodnamehyphen}',
+        # Dynamically generated detail routes. Generated using
+        # @action(detail=True) decorator on methods of the viewset.
+        DynamicRoute(
+            url=r'^{prefix}/{lookup}/{url_path}{trailing_slash}$',
+            name='{basename}-{url_name}',
+            detail=True,
             initkwargs={}
         ),
     ]
-

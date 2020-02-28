@@ -21,7 +21,6 @@ from core.django.constants import COUNTRIES_CHOICES
 from core.django.models import PinYinFieldModelMixin, ResizeUploadedImageModelMixin, TenantModelMixin
 from config.settings import PRODUCT_PHOTO_FOLDER, MEDIA_URL, MEDIA_ROOT
 
-from apps.store.models import Page
 from core.django.storage import OverwriteStorage
 
 log = logging.getLogger(__name__)
@@ -76,7 +75,7 @@ class Product(ResizeUploadedImageModelMixin, PinYinFieldModelMixin, TenantModelM
                             'medium': (800, 800, True),
                             'thumbnail': (400, 400, True)
                         })
-    brand = models.ForeignKey(Brand, blank=True, null=True, verbose_name=_('brand'))
+    brand = models.ForeignKey(Brand, blank=True, null=True, verbose_name=_('brand'), on_delete=models.CASCADE)
     spec = models.CharField(_('spec'), max_length=128, blank=True)
     # deliver weight unit: KG
     weight = models.DecimalField(_('weight'), max_digits=8, decimal_places=2, blank=True, null=True)
@@ -108,7 +107,6 @@ class Product(ResizeUploadedImageModelMixin, PinYinFieldModelMixin, TenantModelM
         ('alias', Style.NORMAL, False),
         ('alias', Style.FIRST_LETTER, False),
     ]
-    objects = ProductManager()
 
     class Meta:
         verbose_name_plural = _('Product')

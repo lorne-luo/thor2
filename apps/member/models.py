@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 import logging
-import time
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Group
@@ -8,15 +6,12 @@ from django.db import models, connection
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-from djstripe.models import Plan
 
 from apps.tenant.models import Tenant
 from core.auth_user.constant import MEMBER_GROUP, PREMIUM_MEMBER_GROUP, FREE_PREMIUM_GROUP
 from core.auth_user.models import AuthUser, UserProfileMixin
 from core.django.constants import COUNTRIES_CHOICES, CURRENCY_CHOICES
 from core.django.models import TenantModelMixin
-from core.payments.stripe.models import StripePaymentUserMixin
-from core.payments.stripe.stripe_api import stripe
 
 log = logging.getLogger(__name__)
 
@@ -24,7 +19,7 @@ MONTHLY_FREE_ORDER = 10
 SELLER_MEMBER_PLAN_ID = 'Seller_Member_1'
 
 
-class Seller(UserProfileMixin, StripePaymentUserMixin, TenantModelMixin, models.Model):
+class Seller(UserProfileMixin, TenantModelMixin, models.Model):
     tenant_id = models.CharField(_('tenant_id'), max_length=128, blank=True)
     auth_user = models.OneToOneField(AuthUser, on_delete=models.CASCADE, related_name='seller', null=True, blank=True)
     name = models.CharField(_('姓名'), max_length=30, blank=True)
@@ -81,19 +76,19 @@ class Seller(UserProfileMixin, StripePaymentUserMixin, TenantModelMixin, models.
 
     def subscribe_premium_plan(self):
         plan_id = SELLER_MEMBER_PLAN_ID
-        if not self.stripe_customer.has_active_subscription(plan_id):
-            plan = Plan.objects.filter(stripe_id=plan_id).first()
-            next_month = timezone.now() + relativedelta(months=1)
-            first_day = next_month.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-            timestamp = int(time.mktime(first_day.timetuple()))
-            self.stripe_customer.subscribe(plan, charge_immediately=False, trial_end=timestamp)
-            # add invoice item for current month
-            stripe.InvoiceItem.create(
-                customer=self.stripe_customer.stripe_id,
-                amount=int(plan.amount * 100),
-                currency="aud",
-                description="First month member plan fee",
-            )
+        # if not self.stripe_customer.has_active_subscription(plan_id):
+        #     plan = Plan.objects.filter(stripe_id=plan_id).first()
+        #     next_month = timezone.now() + relativedelta(months=1)
+        #     first_day = next_month.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        #     timestamp = int(time.mktime(first_day.timetuple()))
+        #     self.stripe_customer.subscribe(plan, charge_immediately=False, trial_end=timestamp)
+        #     # add invoice item for current month
+        #     stripe.InvoiceItem.create(
+        #         customer=self.stripe_customer.stripe_id,
+        #         amount=int(plan.amount * 100),
+        #         currency="aud",
+        #         description="First month member plan fee",
+        #     )
 
     def add_card(self, source, remove_old=False, set_default=True):
         card = super(Seller, self).add_card(source, remove_old=False, set_default=True)
@@ -174,7 +169,7 @@ class Seller(UserProfileMixin, StripePaymentUserMixin, TenantModelMixin, models.
 
 
 class MembershipOrder(models.Model):
-    seller = models.ForeignKey(Seller, blank=True, null=True)
+    seller = models.ForeignKey(Seller, blank=True, null=True, on_delete=models.CASCADE)
     start_at = models.DateField(_('membership start at'), auto_now_add=False, editable=True, null=True, blank=True)
     end_at = models.DateField(_('membership expire at'), auto_now_add=False, editable=True, null=True, blank=True)
     amount = models.DecimalField(_('membership payment'), max_digits=5, decimal_places=2, null=True)

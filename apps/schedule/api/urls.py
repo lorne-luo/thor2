@@ -6,7 +6,7 @@ router = PostHackedRouter()
 router.include_root_view = False
 
 # reverse('api:dealsubscribe-list'), reverse('api:dealsubscribe-detail', kwargs={'pk': 1})
-router.register(r'dealsubscribe', views.DealSubscribeViewSet, base_name='dealsubscribe')
+router.register(r'dealsubscribe', views.DealSubscribeViewSet, basename='dealsubscribe')
 
 urlpatterns = [
 

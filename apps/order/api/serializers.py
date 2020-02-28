@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework import serializers
 from core.api.serializers import BaseSerializer
 from ..models import OrderProduct, Order

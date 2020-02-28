@@ -5,7 +5,7 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.views.decorators.csrf import csrf_protect
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.core.urlresolvers import reverse, NoReverseMatch
+from django.urls import reverse, NoReverseMatch
 from django.template.response import TemplateResponse
 from django.utils import six
 from django.utils.text import capfirst

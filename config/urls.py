@@ -1,17 +1,14 @@
-from django.contrib import admin
-from django.conf.urls import include, url
 from django.conf import settings
+from django.conf.urls import include, url
 from django.contrib.auth import views as auth_views
-from wagtail.contrib.wagtailsitemaps.views import sitemap
 
-from wagtail.wagtailcore import urls as wagtail_urls
-
+from apps.member.forms import CustomPasswordResetForm, CustomSetPasswordForm
+from apps.member.views import member_login, member_logout
 from apps.order.views import OrderDetailView
+from core import auth_user
 from core.api.views import GitCommitInfoView
 from core.auth_user.views import ChangePasswordView
-from core import auth_user
-from apps.auth_user.forms import CustomPasswordResetForm, CustomSetPasswordForm
-from apps.auth_user.views import member_login, member_logout
+
 
 def if_installed(appname, *args, **kwargs):
     ret = url(*args, **kwargs)
@@ -19,23 +16,23 @@ def if_installed(appname, *args, **kwargs):
         ret.resolve = lambda *args: None
     return ret
 
+
 apps_urlpatterns = [
-    url(r'^$', member_login,name='member-login'),
-    url(r'^logout/$', member_logout,name='member-logout'),
+    url(r'^$', member_login, name='member-login'),
+    url(r'^logout/$', member_logout, name='member-logout'),
     # url(r'^djadmin/', include(admin.site.urls)),
-    url(r'^customer/', include('apps.customer.urls', namespace='customer')),
-    url(r'^user/', include('apps.auth_user.urls', namespace='user')),
-    url(r'^product/', include('apps.product.urls', namespace='product')),
-    url(r'^order/', include('apps.order.urls', namespace='order')),
-    url(r'^express/', include('apps.express.urls', namespace='express')),
-    url(r'^carrier_tracker/', include('apps.carrier_tracker.urls', namespace='carrier_tracker')),
-    url(r'^report/', include('apps.report.urls', namespace='report')),
-    url(r'^wx/', include('apps.weixin.urls', namespace='weixin')),
-    url(r'^schedule/', include('apps.schedule.urls', namespace='schedule')),
-    url(r'^messageset/', include('core.messageset.urls', namespace='messageset')),
-    url(r'^payments/', include('core.payments.stripe.urls', namespace='payments')),
-    url(r'^(?P<schema_id>[-\w]+)/(?P<uid>[-\w]+)/$', OrderDetailView.as_view(), name='order-detail-short'),
-    url(r'^forex/', include('apps.forex.urls', namespace='forex')),
+    url(r'^customer/', include(('apps.customer.urls','customer'), namespace='customer')),
+    url(r'^member/', include(('apps.member.urls','member'), namespace='member')),
+    url(r'^product/', include(('apps.product.urls','product'), namespace='product')),
+    url(r'^order/', include(('apps.order.urls','order'), namespace='order')),
+    url(r'^express/', include(('apps.express.urls','express'), namespace='express')),
+    url(r'^carrier_tracker/', include(('apps.carrier_tracker.urls','carrier_tracker'), namespace='carrier_tracker')),
+    url(r'^report/', include(('apps.report.urls','report'), namespace='report')),
+    url(r'^wx/', include(('apps.weixin.urls','weixin'), namespace='weixin')),
+    url(r'^schedule/', include(('apps.schedule.urls','schedule'), namespace='schedule')),
+    url(r'^messageset/', include(('core.messageset.urls','messageset'), namespace='messageset')),
+    # url(r'^payments/', include('core.payments.stripe.urls', namespace='payments')),
+    # url(r'^(?P<schema_id>[-\w]+)/(?P<uid>[-\w]+)/$', OrderDetailView.as_view(), name='order-detail-short'),
 ]
 
 # REST API
@@ -43,7 +40,7 @@ api_urlpatterns = [
     url(r'^customer/', include('apps.customer.api.urls')),
     url(r'^carrier_tracker/', include('apps.carrier_tracker.api.urls')),
     url(r'^express/', include('apps.express.api.urls')),
-    url(r'^user/', include('apps.auth_user.api.urls')),
+    url(r'^member/', include('apps.member.api.urls')),
     url(r'^order/', include('apps.order.api.urls')),
     url(r'^product/', include('apps.product.api.urls')),
     url(r'^report/', include('apps.report.api.urls')),
@@ -55,27 +52,27 @@ api_urlpatterns = [
 
 urlpatterns = apps_urlpatterns + [
     # REST API
-    url(r'^api/', include(api_urlpatterns, namespace='api')),
+    url(r'^api/', include((api_urlpatterns,'api'), namespace='api')),
 
     # auth
     url('^auth/change-password/$', ChangePasswordView.as_view(), name='change_password'),
     url('^auth/change-password-done/$', auth_user.views.ChangePasswordDoneView.as_view(), name='password_change_done'),
 
     # password reset
-    url(r'^password/reset/$', auth_views.password_reset, {'template_name': 'adminlte/password_reset_form.html',
-                                                          'email_template_name': 'adminlte/password_reset_email.html',
-                                                          'password_reset_form': CustomPasswordResetForm},
-        name='password_reset'),
-    url(r'^password/reset/done/$', auth_views.password_reset_done,
-        {'template_name': 'adminlte/password_reset_done.html'},
-        name='password_reset_done'),
-    url(r'^password/reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/$', auth_views.password_reset_confirm,
-        {'template_name': 'adminlte/password_reset_confirm.html',
-         'set_password_form': CustomSetPasswordForm},
-        name='password_reset_confirm'),
-    url(r'^password/reset/complete/$', auth_views.password_reset_complete,
-        {'template_name': 'adminlte/password_reset_complete.html'},
-        name='password_reset_complete'),
+    # url(r'^password/reset/$', auth_views.password_reset, {'template_name': 'adminlte/password_reset_form.html',
+    #                                                       'email_template_name': 'adminlte/password_reset_email.html',
+    #                                                       'password_reset_form': CustomPasswordResetForm},
+    #     name='password_reset'),
+    # url(r'^password/reset/done/$', auth_views.password_reset_done,
+    #     {'template_name': 'adminlte/password_reset_done.html'},
+    #     name='password_reset_done'),
+    # url(r'^password/reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/$', auth_views.password_reset_confirm,
+    #     {'template_name': 'adminlte/password_reset_confirm.html',
+    #      'set_password_form': CustomSetPasswordForm},
+    #     name='password_reset_confirm'),
+    # url(r'^password/reset/complete/$', auth_views.password_reset_complete,
+    #     {'template_name': 'adminlte/password_reset_complete.html'},
+    #     name='password_reset_complete'),
 
     # dbsettings
     url(r'^djadmin/settings/', include('dbsettings.urls')),
@@ -83,14 +80,6 @@ urlpatterns = apps_urlpatterns + [
     # django-tinymce
     url(r'^tinymce/', include('tinymce.urls')),
 
-    # Site map and robots.txt
-    url(r'^robots\.txt', include('robots.urls')),
-    url(r'^sitemap\.xml$', sitemap),
-
-    # For anything not caught by a more specific rule above, hand over to
-    # Wagtail's page serving mechanism. This should be the last pattern in
-    # the list:
-    url(r'^home/', include(wagtail_urls)),
 ]
 
 if settings.DEBUG:

@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
 
-from djstripe.models import Plan
 from django.db import connection
 
 from apps.order.models import OrderProduct

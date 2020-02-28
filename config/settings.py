@@ -9,12 +9,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
+import datetime
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import environ
-import datetime
 import time
 
+import environ
 from celery.schedules import crontab
 from django.utils.translation import ugettext_lazy as _
 
@@ -52,21 +52,6 @@ DEFAULT_FILE_STORAGE = 'tenant_schemas.storage.TenantFileSystemStorage'
 # Application definition
 INSTALLED_APPS = (
     'tenant_schemas',
-    # WAGTAIL_APPS
-    'wagtail.wagtailforms',
-    'wagtail.wagtailredirects',
-    'wagtail.wagtailembeds',
-    'wagtail.wagtailsites',
-    'wagtail.wagtailusers',
-    'wagtail.wagtailsnippets',
-    'wagtail.wagtaildocs',
-    'wagtail.wagtailimages',
-    'wagtail.wagtailsearch',
-    'wagtail.wagtailadmin',
-    'wagtail.wagtailcore',
-    'wagtail.contrib.modeladmin',
-    'wagtail.contrib.settings',
-
     'django.contrib.sites',
     # 'django.contrib.admin',
     # 'material',
@@ -91,9 +76,9 @@ INSTALLED_APPS = (
     'core.commands',  # customized django commands
     'core.auth_user',
     'core.adminlte',
-    'core.messageset',
     'core.autocode',
-    'core.payments.stripe',
+    'core.messageset',
+    'core.sms',
 
     'apps.tenant',
     'apps.member',
@@ -105,7 +90,6 @@ INSTALLED_APPS = (
     'apps.report',
     'apps.schedule',
     'apps.weixin',
-    'core.sms',
     'utils',
 
     # third_app
@@ -113,27 +97,29 @@ INSTALLED_APPS = (
     'rest_framework',
     'modelcluster',
     'taggit',
-    'djstripe',
     'stdimage',
     'rest_framework_swagger',
-    'robots',
-    'apps.forex',
+
 )
 
 TENANT_APPS = (
     # your tenant-specific apps
+    'django.contrib.auth',
     'apps.member',
     'apps.customer',
     'apps.product',
     'apps.order',
+    'apps.carrier_tracker',
     'apps.express',
     'apps.report',
     'apps.schedule',
     'core.sms',
+    'core.messageset',
+    'core.auth_user',
+    'taggit',
 )
 
 SHARED_APPS = tuple(frozenset(INSTALLED_APPS).difference(frozenset(TENANT_APPS)))
-
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -153,9 +139,6 @@ MIDDLEWARE_CLASSES = (
     # 'core.libs.middleware.ApiPermissionCheck',
     # 'core.libs.middleware.MenuMiddleware',
 
-    # wagtail
-    # 'wagtail.wagtailcore.middleware.SiteMiddleware',
-    # 'wagtail.wagtailredirects.middleware.RedirectMiddleware',
 )
 
 ROOT_URLCONF = 'config.urls'
@@ -413,8 +396,7 @@ PRODUCT_PHOTO_FOLDER = 'product'
 ANONYMOUS_USER_ID = -1
 SITE_ID = 1
 
-DEFAULT_CURRENCY='AUDCNH'
-
+DEFAULT_CURRENCY = 'AUDCNH'
 
 # STRIPE PAYMENT
 # ------------------------------------------------------------------------------
@@ -423,7 +405,7 @@ STRIPE_LIVE_SECRET_KEY = env('STRIPE_LIVE_SECRET_KEY')
 STRIPE_TEST_PUBLIC_KEY = env('STRIPE_TEST_PUBLIC_KEY')
 STRIPE_TEST_SECRET_KEY = env('STRIPE_TEST_SECRET_KEY')
 STRIPE_LIVE_MODE = env.bool('STRIPE_LIVE_MODE', default=False)
-DJSTRIPE_WEBHOOK_EVENT_CALLBACK = 'core.payments.stripe.tasks.webhook_event_callback'
+# DJSTRIPE_WEBHOOK_EVENT_CALLBACK = 'core.payments.stripe.tasks.webhook_event_callback'
 
 # TELSTRA SMS API KEY
 # ------------------------------------------------------------------------------
@@ -454,7 +436,6 @@ ALIYUN_BATCH_EMAIL_PASSWORD = env('ALIYUN_BATCH_EMAIL_PASSWORD', default='')
 # TELEGRAM
 # ---------------------------------------------------------------
 TELEGRAM_TOKEN = env('TELEGRAM_TOKEN', default='')
-
 
 # CACHES
 # ------------------------------------------------------------------------------

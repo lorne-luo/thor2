@@ -9,8 +9,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ViewDoesNotExist, ObjectDoesNotExist
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.decorators import detail_route, list_route
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_extensions.mixins import PaginateByMaxMixin
@@ -126,12 +126,12 @@ class AjaxDatableView(object):
         else:
             raise ImproperlyConfigured('Can\'t get model for viewset')
 
-    @list_route()
+    @action(detail=False)
     def status(self, request, *args, **kwargs):
         self.filter_class = pk_in_filter_factory(self.get_model())
         return super(AjaxDatableView, self).list(self, request, *args, **kwargs)
 
-    @list_route()
+    @action(detail=False)
     def page(self, request, *args, **kwargs):
         """ pagination for ajax mode dataTable """
         self.pagination_class = AjaxDatatablePagination
@@ -185,7 +185,7 @@ class CommonViewSet(PaginateByMaxMixin, ModelViewSet):
 
         return super(CommonViewSet, self).get_permissions()
 
-    @list_route(methods=['post', 'delete'])
+    @action(detail=False)
     def delete(self, request, pk=None):
         """ for batch delete """
         pk = request.POST.get('pk')
@@ -199,7 +199,7 @@ class CommonViewSet(PaginateByMaxMixin, ModelViewSet):
             return Response(data, status=404)
         return JsonResponse({'success': True}, status=200)
 
-    @list_route(methods=['post', 'get'])
+    @action(detail=False)
     def page(self, request):
         """ pagenation api for jquery.dataTable """
         draw = request.GET.get('draw', 0)

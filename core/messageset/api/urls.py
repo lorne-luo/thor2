@@ -6,12 +6,12 @@ router = PostHackedRouter()
 router.include_root_view = False
 
 # reverse('api:notification-list'),reverse('api:notification-detail', kwargs={'pk': 1})
-router.register(r'notification', views.NotificationViewSet, base_name='notification')
-# router.register(r'notificationcontent', views.NotificationContentViewSet, base_name='notificationcontent')
-router.register(r'sitemailcontent', views.SiteMailContentViewSet, base_name='sitemailcontent')
-router.register(r'sitemailreceive', views.SiteMailReceiveViewSet, base_name='sitemailreceive')
-router.register(r'sitemailsend', views.SiteMailSendViewSet, base_name='sitemailsend')
-router.register(r'task', views.TaskViewSet, base_name='task')
+router.register(r'notification', views.NotificationViewSet, basename='notification')
+# router.register(r'notificationcontent', views.NotificationContentViewSet, basename='notificationcontent')
+router.register(r'sitemailcontent', views.SiteMailContentViewSet, basename='sitemailcontent')
+router.register(r'sitemailreceive', views.SiteMailReceiveViewSet, basename='sitemailreceive')
+router.register(r'sitemailsend', views.SiteMailSendViewSet, basename='sitemailsend')
+router.register(r'task', views.TaskViewSet, basename='task')
 
 urlpatterns = [
     url(r'sitemail/receive/markall', views.sitemail_markall, name='sitemail_markall'),

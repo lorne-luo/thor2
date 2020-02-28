@@ -1,22 +1,22 @@
 # coding:utf-8
 import os
-
 import time
+
 from dateutil.relativedelta import relativedelta
-from django.core.urlresolvers import reverse
+from django.conf import settings
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils import timezone
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from pypinyin import Style
 from stdimage import StdImageField
-from django.core.validators import FileExtensionValidator
+
 from core.aliyun.email.tasks import email_send_task
 from core.auth_user.models import AuthUser, UserProfileMixin
 from core.django.models import PinYinFieldModelMixin, ResizeUploadedImageModelMixin, TenantModelMixin
-
 from core.django.storage import OverwriteStorage
 
 
@@ -43,7 +43,7 @@ class Customer(PinYinFieldModelMixin, UserProfileMixin, TenantModelMixin, models
     order_count = models.PositiveIntegerField(_('订单数'), blank=True, default=0)
     last_order_time = models.DateTimeField(_('Last order time'), auto_now_add=True, null=True)
     primary_address = models.ForeignKey('Address', blank=True, null=True, verbose_name=_('默认地址'),
-                                        related_name='primary_address')
+                                        related_name='primary_address', on_delete=models.CASCADE)
     tags = models.ManyToManyField(InterestTag, verbose_name=_('Tags'), blank=True)
     create_time = models.DateTimeField(_('Create Time'), auto_now_add=True, editable=False)
 
@@ -156,7 +156,8 @@ class Address(ResizeUploadedImageModelMixin, PinYinFieldModelMixin, TenantModelM
     name = models.CharField(_('name'), max_length=30, null=False, blank=False)
     mobile = models.CharField(_('mobile number'), max_length=15, null=True, blank=True)
     address = models.CharField(_('address'), max_length=100, null=False, blank=False)
-    customer = models.ForeignKey(Customer, blank=False, null=False, verbose_name=_('customer'))
+    customer = models.ForeignKey(Customer, blank=False, null=False, verbose_name=_('customer'),
+                                 on_delete=models.CASCADE)
     id_number = models.CharField(_('ID number'), max_length=20, blank=True, null=True)
     id_photo_front = StdImageField(_('ID Front'), upload_to=get_id_photo_front_path, blank=True, null=True,
                                    validators=[FileExtensionValidator(['jpg', 'jpeg', 'gif', 'png'])],

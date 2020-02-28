@@ -3,10 +3,8 @@ import datetime
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse_lazy, reverse
 from django.db import models
-from django.db.models.signals import post_save, m2m_changed
-from django.dispatch import receiver
+from django.urls import reverse_lazy, reverse
 from tinymce import HTMLField
 
 from core.django.constants import ReadStatus, TaskStatus, MailStatus, UsableStatus, DICT_NULL_BLANK_TRUE
@@ -30,7 +28,8 @@ class AbstractMessageContent(models.Model, UsableStatus):
         settings.AUTH_USER_MODEL,
         verbose_name="数据创建人",
         # editable=False,
-        **DICT_NULL_BLANK_TRUE
+        **DICT_NULL_BLANK_TRUE,
+        on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(
         verbose_name="数据创建时间",
@@ -104,13 +103,15 @@ class AbstractSiteMail(models.Model, MailStatus):
     )
     content = models.ForeignKey(
         SiteMailContent,
-        verbose_name='内容'
+        verbose_name='内容',
+        on_delete=models.CASCADE
     )
     sender = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='+',
         verbose_name='发件人',
-        **DICT_NULL_BLANK_TRUE
+        **DICT_NULL_BLANK_TRUE,
+        on_delete=models.CASCADE
     )
     send_time = models.DateTimeField(
         verbose_name='发送时间',
@@ -126,7 +127,8 @@ class AbstractSiteMail(models.Model, MailStatus):
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name="数据创建人",
-        **DICT_NULL_BLANK_TRUE
+        **DICT_NULL_BLANK_TRUE,
+        on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(
         verbose_name="数据创建时间",
@@ -177,7 +179,8 @@ class SiteMailReceive(AbstractSiteMail):
         settings.AUTH_USER_MODEL,
         related_name='sitemailreceive_receive',
         verbose_name='收件人',
-        **DICT_NULL_BLANK_TRUE
+        **DICT_NULL_BLANK_TRUE,
+        on_delete=models.CASCADE
     )
     read_time = models.DateTimeField(
         verbose_name='读取时间',
@@ -275,13 +278,15 @@ class Notification(models.Model, ReadStatus):
     content = models.ForeignKey(
         NotificationContent,
         verbose_name='内容',
-        **DICT_NULL_BLANK_TRUE
+        **DICT_NULL_BLANK_TRUE,
+        on_delete=models.CASCADE
     )
     receiver = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='+',
         verbose_name='收件人',
-        **DICT_NULL_BLANK_TRUE
+        **DICT_NULL_BLANK_TRUE,
+        on_delete=models.CASCADE
     )
     status = models.PositiveSmallIntegerField(
         verbose_name='读取状态',
@@ -301,7 +306,8 @@ class Notification(models.Model, ReadStatus):
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name="数据创建人",
-        **DICT_NULL_BLANK_TRUE
+        **DICT_NULL_BLANK_TRUE,
+        on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(
         verbose_name="数据创建时间",
@@ -372,7 +378,8 @@ class Task(models.Model, TaskStatus):
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name="数据创建人",
-        **DICT_NULL_BLANK_TRUE
+        **DICT_NULL_BLANK_TRUE,
+        on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(
         verbose_name="数据创建时间",
