@@ -1,22 +1,19 @@
-# coding=utf-8
-from braces.views import MultiplePermissionsRequiredMixin
+from braces.views import MultiplePermissionsRequiredMixin, StaffuserRequiredMixin
 from django.contrib import messages
 from django.contrib.auth import login
-from django.urls import reverse
 from django.db import transaction
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _
+from django.urls import reverse
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView
 
-from core.django.permission import SellerOwnerOnlyRequiredMixin, SellerRequiredMixin
 from core.django.views import CommonContextMixin
+from . import forms
 from .models import Order, ORDER_STATUS, OrderProduct
 from ..customer.models import Customer
-from ..express.views import CarrierInfoRequiredMixin
 from ..express.forms import ExpressOrderFormSet, ExpressOrderInlineEditForm
+from ..express.views import CarrierInfoRequiredMixin
 from ..member.models import Seller
-from . import forms
 
 
 def change_order_status(request, order_id, status_value):
@@ -64,7 +61,7 @@ class OrderAddEdit(MultiplePermissionsRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
 
-class OrderListView(CarrierInfoRequiredMixin, SellerRequiredMixin, CommonContextMixin, ListView):
+class OrderListView(CarrierInfoRequiredMixin, StaffuserRequiredMixin, CommonContextMixin, ListView):
     model = Order
     template_name_suffix = '_list'  # order/order_list.html
 
@@ -98,7 +95,7 @@ class OrderMemberListView(CommonContextMixin, ListView):
         return super(OrderMemberListView, self).get(self, request, *args, **kwargs)
 
 
-class OrderAddView(SellerRequiredMixin, CommonContextMixin, CreateView):
+class OrderAddView(StaffuserRequiredMixin, CommonContextMixin, CreateView):
     model = Order
     form_class = forms.OrderAddForm
     # template_name = 'adminlte/common_form.html'
@@ -278,7 +275,7 @@ class OrderProductDetailView(SellerOwnerOnlyRequiredMixin, CommonContextMixin, U
     template_name = 'adminlte/common_detail_new.html'
 
 
-class OrderPurchaseView(CarrierInfoRequiredMixin, SellerRequiredMixin, CommonContextMixin, ListView):
+class OrderPurchaseView(CarrierInfoRequiredMixin, StaffuserRequiredMixin, CommonContextMixin, ListView):
     model = Order
     queryset = Order.objects.filter(status=ORDER_STATUS.CREATED, products__is_purchased=False).distinct().order_by(
         '-create_time')

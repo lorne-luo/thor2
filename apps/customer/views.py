@@ -1,10 +1,8 @@
-# coding=utf-8
-from braces.views import MultiplePermissionsRequiredMixin, SuperuserRequiredMixin
+from braces.views import MultiplePermissionsRequiredMixin, SuperuserRequiredMixin, StaffuserRequiredMixin
 from django.db import transaction
 from django.http import HttpResponse
 from django.views.generic import ListView, CreateView, UpdateView
 
-from core.django.permission import SellerRequiredMixin
 from core.django.views import CommonContextMixin
 from . import forms
 from .models import Address, Customer
@@ -61,7 +59,7 @@ class CustomerAddView(MultiplePermissionsRequiredMixin, CommonContextMixin, Crea
         return super(CustomerAddView, self).form_valid(form)
 
 
-class CustomerUpdateView(SellerRequiredMixin, CommonContextMixin, UpdateView):
+class CustomerUpdateView(StaffuserRequiredMixin, CommonContextMixin, UpdateView):
     model = Customer
     form_class = forms.CustomerUpdateForm
     template_name = 'customer/customer_edit.html'
@@ -101,7 +99,7 @@ class CustomerUpdateView(SellerRequiredMixin, CommonContextMixin, UpdateView):
         return super(CustomerUpdateView, self).post(request, *args, **kwargs)
 
 
-class CustomerDetailView(SellerRequiredMixin, CommonContextMixin, UpdateView):
+class CustomerDetailView(StaffuserRequiredMixin, CommonContextMixin, UpdateView):
     model = Customer
     form_class = forms.CustomerDetailForm
     template_name = 'adminlte/common_detail_new.html'

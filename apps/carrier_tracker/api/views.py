@@ -1,15 +1,16 @@
+from braces.views import StaffuserRequiredMixin
 from dal import autocomplete
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+
 from core.api.filters import PinyinSearchFilter
 from core.api.permission import SellerPermissions
 from core.api.views import CommonViewSet
 from core.django.autocomplete import HansSelect2ViewMixin
-from core.django.permission import SellerRequiredMixin
 from core.utils.string import include_non_asc
-from ..models import CarrierTracker
 from . import serializers
+from ..models import CarrierTracker
 
 
 class CarrierTrackerViewSet(CommonViewSet):
@@ -33,7 +34,7 @@ class CarrierTrackerViewSet(CommonViewSet):
         return queryset
 
 
-class CarrierTrackerAutocomplete(SellerRequiredMixin, HansSelect2ViewMixin, autocomplete.Select2QuerySetView):
+class CarrierTrackerAutocomplete(StaffuserRequiredMixin, HansSelect2ViewMixin, autocomplete.Select2QuerySetView):
     model = CarrierTracker
     paginate_by = 50
     create_field = 'name_cn'

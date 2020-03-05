@@ -1,10 +1,8 @@
-# coding=utf-8
 import inspect
 
 from django.contrib import messages
-from django.db import models
-
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import models
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 
@@ -30,10 +28,6 @@ class ProfileRequiredMixin(LoginRequiredMixin):
             return super(ProfileRequiredMixin, self).dispatch(request, *args, **kwargs)
         else:
             return self.handle_no_permission()
-
-
-class SellerRequiredMixin(ProfileRequiredMixin):
-    profile_required = ('member.seller',)
 
 
 class CustomerRequiredMixin(ProfileRequiredMixin):
