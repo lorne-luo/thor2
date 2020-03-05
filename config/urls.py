@@ -2,7 +2,6 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib.auth import views as auth_views
 
-from apps.member.forms import CustomPasswordResetForm, CustomSetPasswordForm
 from apps.member.views import member_login, member_logout
 from apps.order.views import OrderDetailView
 from core import auth_user
@@ -40,7 +39,6 @@ api_urlpatterns = [
     url(r'^customer/', include('apps.customer.api.urls')),
     url(r'^carrier_tracker/', include('apps.carrier_tracker.api.urls')),
     url(r'^express/', include('apps.express.api.urls')),
-    url(r'^member/', include('apps.member.api.urls')),
     url(r'^order/', include('apps.order.api.urls')),
     url(r'^product/', include('apps.product.api.urls')),
     url(r'^report/', include('apps.report.api.urls')),

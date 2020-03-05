@@ -94,10 +94,8 @@ class SiteMailReceiveViewSet(OwnerMessageViewSetMixin2, CommonViewSet):
     queryset = SiteMailReceive.objects.all()
     serializer_class = serializers.SiteMailReceiveSerializer
     permission_classes = [permissions.DjangoModelPermissions]
-    filter_fields = ['title', 'content__contents', 'status', 'sender__seller__name', 'creator__seller__name',
-                     'receiver__seller__name']
-    search_fields = ['title', 'content__contents', 'status', 'sender__seller__name', 'creator__seller__name',
-                     'receiver__seller__name']
+    filter_fields = ['title', 'content__contents', 'status']
+    search_fields = ['title', 'content__contents', 'status']
     ordering_fields = ['send_time']
 
     def get_paginated_response(self, data):

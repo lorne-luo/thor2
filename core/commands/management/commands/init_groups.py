@@ -19,7 +19,6 @@ class Command(BaseCommand):
             ('y', 'y', 'y', 'y', 'customer', 'address'),
         ],
         MEMBER_GROUP: [
-            ('y', 'y', 'y', 'n', 'member', 'seller'),
             ('y', 'y', 'y', 'y', 'order', 'order'),
             ('y', 'y', 'y', 'y', 'order', 'orderproduct'),
             ('y', 'y', 'y', 'y', 'customer', 'customer'),

@@ -99,7 +99,6 @@ class PlanPurchaseView(StaffuserRequiredMixin, SubscriptionMixin, TemplateRespon
         if plan:
             customer = self.request.profile.stripe_customer
             subscription = customer.subscribe(plan)
-            # todo update seller expiration, wrap subscribe method
         else:
             messages.success(self.request, 'Plan subcribe failed.')
             return HttpResponseRedirect(reverse_lazy('payments:plan_purchase'))

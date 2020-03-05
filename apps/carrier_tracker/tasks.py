@@ -12,8 +12,6 @@ log = logging.getLogger(__name__)
 @task
 def update_delivery_tracking():
     for order in Order.objects.filter(status__in=[ORDER_STATUS.SHIPPING, ORDER_STATUS.CREATED]):
-        if not order.seller.is_premium:
-            continue
         order.update_track()
 
 

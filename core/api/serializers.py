@@ -35,11 +35,3 @@ class BaseSerializer(serializers.ModelSerializer):
         model_name = self.Meta.model._meta.model_name
         perm_str = '%s.%s_%s' % (app_label, perm, model_name)
         return user.has_perm(perm_str)
-
-
-class SellerOwnerSerializerMixin(object):
-    def get_is_owner(self, obj):
-        request = self.context.get("request")
-        if not obj.seller and request.user.is_superuser:
-            return True
-        return obj.seller == request.profile

@@ -135,8 +135,8 @@ class OrderUpdateForm(NoManytoManyHintModelForm):
             else:
                 self.fields.pop('finish_time')
 
-            if not instance.currency and instance.seller:
-                self.initial['currency'] = instance.seller.primary_currency
+            if not instance.currency:
+                self.initial['currency'] = instance.currency
 
         if not instance.address:
             default_address = Customer.objects.filter(pk=instance.customer_id).first().primary_address

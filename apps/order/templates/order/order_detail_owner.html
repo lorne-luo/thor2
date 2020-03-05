@@ -125,15 +125,13 @@
                             {% endif %}
                         </td>
                     </tr>
-                    {% if ex.order.seller.is_premium %}
-                        <tr>
-                            <td>
-                                <ul>
-                                    <li>{{ ex.last_track|default:"暂无物流跟踪信息" }}</li>
-                                </ul>
-                            </td>
-                        </tr>
-                    {% endif %}
+                    <tr>
+                        <td>
+                            <ul>
+                                <li>{{ ex.last_track|default:"暂无物流跟踪信息" }}</li>
+                            </ul>
+                        </td>
+                    </tr>
                 {% endfor %}
             </table>
         </td>
@@ -142,8 +140,4 @@
 
 
 {% block page_footer %}
-    <p style="font-size: 11px">* 本页部分敏感价格信息仅登陆卖家可见，可放心发送本页面给客户。</p>
-    {% if not request.user.seller.is_premium %}
-        <p style="font-size: 11px">* 加入高级会员可开启物流跟踪及短信提醒,<a href="#">了解详情</a>.</p>
-    {% endif %}
 {% endblock %}

@@ -1,8 +1,7 @@
 from braces.views import MultiplePermissionsRequiredMixin, StaffuserRequiredMixin
 from django.contrib import messages
-from django.contrib.auth import login
 from django.db import transaction
-from django.http import Http404, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView
@@ -13,7 +12,6 @@ from .models import Order, ORDER_STATUS, OrderProduct
 from ..customer.models import Customer
 from ..express.forms import ExpressOrderFormSet, ExpressOrderInlineEditForm
 from ..express.views import CarrierInfoRequiredMixin
-from ..member.models import Seller
 
 
 def change_order_status(request, order_id, status_value):
@@ -73,26 +71,9 @@ class OrderListView(CarrierInfoRequiredMixin, StaffuserRequiredMixin, CommonCont
         return context
 
 
-class OrderMemberListView(CommonContextMixin, ListView):
+class OrderMemberListView(StaffuserRequiredMixin, CommonContextMixin, ListView):
     model = Order
     template_name_suffix = '_member_list'  # order/order_member_list.html
-
-    def get(self, request, *args, **kwargs):
-        username = self.kwargs.get('username', None)
-
-        try:
-            user = Seller.objects.get(username=username)
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
-
-            if user and not user.is_superuser:
-                if user.is_active:
-                    login(request, user)
-            else:
-                raise Http404
-        except Seller.DoesNotExist:
-            raise Http404
-
-        return super(OrderMemberListView, self).get(self, request, *args, **kwargs)
 
 
 class OrderAddView(StaffuserRequiredMixin, CommonContextMixin, CreateView):
@@ -110,7 +91,7 @@ class OrderAddView(StaffuserRequiredMixin, CommonContextMixin, CreateView):
             return self.form_invalid(form)
 
 
-class OrderUpdateView(SellerOwnerOnlyRequiredMixin, CommonContextMixin, UpdateView):
+class OrderUpdateView(StaffuserRequiredMixin, CommonContextMixin, UpdateView):
     model = Order
     form_class = forms.OrderUpdateForm
     template_name = 'order/order_form.html'
@@ -176,7 +157,6 @@ class OrderAddDetailView(OrderUpdateView):
         except:
             object = Order(customer_id=self.kwargs['customer_id'])
             object.address_id = self.request.POST['address']
-            object.seller = self.request.profile
             object.save()
         return object
 
@@ -185,7 +165,7 @@ class OrderAddDetailView(OrderUpdateView):
         if not Customer.objects.filter(pk=customer_id).exists():
             return HttpResponseRedirect(reverse('order:order-add'))
 
-        self.object = Order(customer_id=customer_id, seller=self.request.profile)
+        self.object = Order(customer_id=customer_id)
         form = self.get_form()
         return self.render_to_response(self.get_context_data(form=form))
 
@@ -222,11 +202,7 @@ class OrderDetailView(CommonContextMixin, UpdateView):
     form_class = forms.OrderDetailForm
 
     def get_template_names(self):
-        if self.request.profile == self.object.seller:
-            # return 'order/order_detail_owner.html'
-            return 'order/order_detail.html'
-        else:
-            return 'order/order_detail.html'
+        return 'order/order_detail.html'
 
     def get_object(self, queryset=None):
         uid = self.kwargs.get('uid', None)
@@ -268,7 +244,7 @@ class OrderProductListView(MultiplePermissionsRequiredMixin, CommonContextMixin,
     }
 
 
-class OrderProductDetailView(SellerOwnerOnlyRequiredMixin, CommonContextMixin, UpdateView):
+class OrderProductDetailView(StaffuserRequiredMixin, CommonContextMixin, UpdateView):
     """ Detail views for OrderProduct """
     model = OrderProduct
     form_class = forms.OrderProductDetailForm

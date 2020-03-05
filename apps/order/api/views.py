@@ -9,7 +9,7 @@ from django_filters import FilterSet
 from django.db.models import Q
 
 from core.api.filters import PinyinSearchFilter
-from core.api.permission import SellerPermissions
+from core.api.permission import StaffPermissions
 from core.api.views import CommonViewSet
 from ..models import Order, ORDER_STATUS, OrderProduct
 from . import serializers
@@ -56,17 +56,14 @@ class OrderViewSet(CommonViewSet):
     filter_class = OrderFilter
     filter_fields = ['uuid']
     search_fields = ['customer__name', 'address__name', 'address__address']
-    permission_classes = (SellerPermissions,)
+    permission_classes = (StaffPermissions,)
     pinyin_search_fields = ['customer__pinyin', 'address__pinyin']  # search only input are all ascii chars
     filter_backends = (DjangoFilterBackend,
                        PinyinSearchFilter,
                        filters.OrderingFilter)
 
     def get_queryset(self):
-        queryset = super(OrderViewSet, self).get_queryset()
-        if self.request.user.is_admin or self.request.user.is_superuser:
-            return queryset
-        return queryset.filter(seller=self.request.profile).select_related('address', 'customer')
+        return super(OrderViewSet, self).get_queryset().select_related('address', 'customer')
 
     @action(detail=False)
     def new(self, request, *args, **kwargs):
@@ -97,7 +94,7 @@ class OrderProductViewSet(CommonViewSet):
     serializer_class = serializers.OrderProductSerializer
     filter_fields = ['uuid']
     search_fields = ['order__customer__name', 'name', 'product__name_cn', 'product__brand__name_cn']
-    permission_classes = [SellerPermissions]
+    permission_classes = [StaffPermissions]
     pinyin_search_fields = ['product__name_en', 'product__brand__name_en', 'order__customer__pinyin']
     filter_backends = (DjangoFilterBackend,
                        PinyinSearchFilter,

@@ -109,15 +109,9 @@ class AuthUser(AbstractBaseUser, PermissionsMixin):
 
     @cached_property
     def profile(self):
-        if getattr(self, 'seller', None):
-            return getattr(self, 'seller')
-        elif getattr(self, 'customer', None):
+        if getattr(self, 'customer', None):
             return getattr(self, 'customer')
         return None
-
-    @cached_property
-    def is_seller(self):
-        return getattr(self, 'seller', None) is not None
 
     @cached_property
     def is_customer(self):
@@ -143,7 +137,7 @@ class AuthUser(AbstractBaseUser, PermissionsMixin):
 
     @cached_property
     def is_admin(self):
-        return self.is_superuser or self.in_group(ADMIN_GROUP)
+        return self.is_superuser or self.is_staff or self.in_group(ADMIN_GROUP)
 
     def email_user(self, subject, message, from_email=None, **kwargs):
         if self.email:
@@ -180,7 +174,7 @@ class UserProfileMixin(object):
 
     @cached_property
     def is_admin(self):
-        return self.auth_user.is_superuser or self.in_group(ADMIN_GROUP)
+        return self.auth_user.is_superuser or self.auth_user.is_staff or self.in_group(ADMIN_GROUP)
 
     @cached_property
     def is_active(self):

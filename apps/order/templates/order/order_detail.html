@@ -97,7 +97,7 @@
                                     [{{ ex.create_time|date:"m/d"|default:"" }}{% if ex.is_delivered %}-{{ ex.delivered_time|date:"m/d"|default:"" }}{% endif %}]
                                     {% if ex.is_delivered %}<span class="label label-danger">已寄达</span>{% endif %}
                                 </span>
-                                {% if request.user.seller == object.seller and not ex.is_delivered %}
+                                {% if request.user.is_staff and not ex.is_delivered %}
                                     <a data-pk="{{ ex.pk }}" class="label label-info mark-as-delivered">设为寄达</a>
                                 {% endif %}
                             {% else %}
@@ -106,15 +106,13 @@
                             {% endif %}
                         </td>
                     </tr>
-                    {% if ex.order.seller.is_premium %}
-                        <tr>
-                            <td>
-                                <ul>
-                                    <li>{{ ex.last_track|default:"暂无物流跟踪信息" }}</li>
-                                </ul>
-                            </td>
-                        </tr>
-                    {% endif %}
+                    <tr>
+                        <td>
+                            <ul>
+                                <li>{{ ex.last_track|default:"暂无物流跟踪信息" }}</li>
+                            </ul>
+                        </td>
+                    </tr>
                 {% endfor %}
             </table>
         </td>
@@ -131,7 +129,7 @@
 {% endblock %}
 
 {% block footer_page_script %}
-    {% if request.user.seller == object.seller %}
+    {% if request.user.is_staff %}
         <script type="text/javascript">
             jQuery(document).ready(function ($) {
                 $(".mark-as-delivered").click(function (event) {

@@ -40,8 +40,6 @@ class ExpressCarrierAddView(CommonContextMixin, CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        if not self.request.user.is_superuser:
-            self.object.seller = self.request.profile
         return super(ExpressCarrierAddView, self).form_valid(form)
 
 

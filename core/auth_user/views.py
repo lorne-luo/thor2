@@ -1,4 +1,3 @@
-# coding=utf-8
 from django.contrib.auth.views import PasswordChangeView
 # Create your views here.
 from django.views.generic import TemplateView
@@ -9,8 +8,8 @@ from core.django.views import CommonPageViewMixin
 class OwnerViewSetMixin(object):
     def get_queryset(self):
         qs = super(OwnerViewSetMixin, self).get_queryset()
-        if self.request.user.is_seller:
-            return qs.filter(seller=self.request.profile)
+        if self.request.user.is_staff or self.request.user.is_superuser :
+            return qs
         elif self.request.user.is_customer:
             return qs.filter(customer=self.request.profile)
         else:

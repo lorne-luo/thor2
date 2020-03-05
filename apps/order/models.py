@@ -397,7 +397,6 @@ class Order(models.Model):
         subject = '%s 全部寄达.' % self
         content = '<a target="_blank" href="%s">%s</a> 全部寄达.' % (self.public_url, self)
 
-        # self.seller.send_notification(subject, content)
 
     def get_track_express(self):
         """get express order need to be track"""
@@ -420,7 +419,6 @@ class Order(models.Model):
 
         if all_delivered:
             self.set_status(ORDER_STATUS.DELIVERED)
-            # notify seller and customer
             self.sms_delivered()
             self.notify_delivered()
 

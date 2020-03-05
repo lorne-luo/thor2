@@ -61,13 +61,11 @@ class ProductAutocomplete(StaffuserRequiredMixin, HansSelect2ViewMixin, autocomp
             product_name = text[text.index('@') + 1:]
             brand = self.get_or_create_brand(brand_name)
             if include_non_asc(product_name):
-                product, created = Product.objects.get_or_create(brand=brand, name_cn=product_name,
-                                                                 seller=self.request.profile)
+                product, created = Product.objects.get_or_create(brand=brand, name_cn=product_name)
             else:
-                product, created = Product.objects.get_or_create(brand=brand, name_en=product_name,
-                                                                 seller=self.request.profile)
+                product, created = Product.objects.get_or_create(brand=brand, name_en=product_name)
             return product
-        return self.get_queryset().create(**{self.create_field: text, 'seller': self.request.profile})
+        return self.get_queryset().create(**{self.create_field: text})
 
     def get_queryset(self):
         qs = Product.objects.all().order_by('brand__name_en', 'name_cn')

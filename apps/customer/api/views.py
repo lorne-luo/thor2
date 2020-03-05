@@ -7,7 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
 from core.api.filters import PinyinSearchFilter
-from core.api.permission import SellerPermissions
+from core.api.permission import StaffPermissions
 from core.api.views import CommonViewSet
 from core.django.autocomplete import HansSelect2ViewMixin
 from core.utils.string import include_non_asc
@@ -36,7 +36,7 @@ class CustomerViewSet(CommonViewSet):
     filter_fields = ['name', 'email', 'mobile', 'order_count', 'primary_address',
                      'remark', 'tags']
     search_fields = ['name', 'primary_address__name', 'remark']
-    permission_classes = (SellerPermissions,)
+    permission_classes = (StaffPermissions,)
     pinyin_search_fields = ['pinyin', 'mobile']  # search only input are all ascii chars
     filter_backends = (DjangoFilterBackend,
                        PinyinSearchFilter,

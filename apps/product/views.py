@@ -46,12 +46,6 @@ class ProductAddView(MultiplePermissionsRequiredMixin, CommonContextMixin, Creat
         context['table_fields'] = ['pic', 'link', 'brand', 'pk']
         return context
 
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        if not self.request.user.is_superuser:
-            self.object.seller = self.request.profile
-        return super(ProductAddView, self).form_valid(form)
-
 
 class ProductUpdateView(StaffuserRequiredMixin, CommonContextMixin, UpdateView):
     model = Product

@@ -33,7 +33,7 @@
 {% endblock %}
 
 {% block tab_content %}
-    <input type="hidden" id="sender_info" value="寄件人: {{ request.user.seller.name }} {{ request.user.seller.mobile }}">
+    <input type="hidden" id="sender_info" value="寄件人: {{ request.user.profile.name }} {{ request.user.profile.mobile }}">
 
     <div class="tab-content">
         {% include 'order/tabs/created_order.html' %}
