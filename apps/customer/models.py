@@ -16,7 +16,7 @@ from stdimage import StdImageField
 
 from core.aliyun.email.tasks import email_send_task
 from core.auth_user.models import AuthUser, UserProfileMixin
-from core.django.models import PinYinFieldModelMixin, ResizeUploadedImageModelMixin, TenantModelMixin
+from core.django.models import PinYinFieldModelMixin, ResizeUploadedImageModelMixin
 from core.django.storage import OverwriteStorage
 
 
@@ -34,7 +34,7 @@ class InterestTag(models.Model):
         return '%s' % self.name
 
 
-class Customer(PinYinFieldModelMixin, UserProfileMixin, TenantModelMixin, models.Model):
+class Customer(PinYinFieldModelMixin, UserProfileMixin, models.Model):
     auth_user = models.OneToOneField(AuthUser, on_delete=models.CASCADE, related_name='customer', null=True, blank=True)
     name = models.CharField(_('姓名'), max_length=30, null=False, blank=False)
     remark = models.CharField(_('备注'), max_length=255, blank=True)
@@ -152,7 +152,7 @@ def get_id_photo_back_path(instance, filename):
     return file_path
 
 
-class Address(ResizeUploadedImageModelMixin, PinYinFieldModelMixin, TenantModelMixin, models.Model):
+class Address(ResizeUploadedImageModelMixin, PinYinFieldModelMixin, models.Model):
     name = models.CharField(_('name'), max_length=30, null=False, blank=False)
     mobile = models.CharField(_('mobile number'), max_length=15, null=True, blank=True)
     address = models.CharField(_('address'), max_length=100, null=False, blank=False)

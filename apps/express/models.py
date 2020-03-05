@@ -14,12 +14,12 @@ from pypinyin import Style
 
 from apps.carrier_tracker.models import CarrierTracker
 from core.aliyun.sms.service import send_cn_sms
-from core.django.models import PinYinFieldModelMixin, TenantModelMixin
+from core.django.models import PinYinFieldModelMixin
 
 log = logging.getLogger(__name__)
 
 
-class ExpressCarrier(PinYinFieldModelMixin, TenantModelMixin, models.Model):
+class ExpressCarrier(PinYinFieldModelMixin, models.Model):
     name_cn = models.CharField(_('中文名称'), max_length=255, blank=False, help_text='中文名称')
     name_en = models.CharField(_('英文名称'), max_length=255, blank=True, help_text='英文名称')
     website = models.URLField(_('官网地址'), max_length=255, blank=True, help_text='官方网站地址')
@@ -88,7 +88,7 @@ class ExpressCarrier(PinYinFieldModelMixin, TenantModelMixin, models.Model):
         self.save(update_fields=['parcel_count'])
 
 
-class ExpressOrder(TenantModelMixin, models.Model):
+class ExpressOrder(models.Model):
     carrier = models.ForeignKey(ExpressCarrier, blank=True, null=True, verbose_name=_('carrier'),
                                 on_delete=models.CASCADE)
     track_id = models.CharField(_('Track ID'), max_length=255, null=False, blank=False, help_text='运单号')

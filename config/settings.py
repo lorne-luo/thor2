@@ -45,13 +45,8 @@ DOMAIN_NAME = env('DOMAIN_NAME', default='youdan.com.au')
 BASE_URL = env('BASE_URL', default='http://localhost:8000')
 STARTUP_TIMESTAMP = int(time.time())
 
-TENANT_MODEL = "tenant.Tenant"
-DEFAULT_FILE_STORAGE = 'tenant_schemas.storage.TenantFileSystemStorage'
-# MULTITENANT_MAPPER_CLASS = 'apps.tenant.mapper.TenantMapper'
-
 # Application definition
 INSTALLED_APPS = (
-    'tenant_schemas',
     'django.contrib.sites',
     # 'django.contrib.admin',
     # 'material',
@@ -80,7 +75,6 @@ INSTALLED_APPS = (
     'core.messageset',
     'core.sms',
 
-    'apps.tenant',
     'apps.member',
     'apps.carrier_tracker',
     'apps.express',
@@ -102,32 +96,10 @@ INSTALLED_APPS = (
 
 )
 
-TENANT_APPS = (
-    # your tenant-specific apps
-    'django.contrib.auth',
-    'apps.member',
-    'apps.customer',
-    'apps.product',
-    'apps.order',
-    'apps.carrier_tracker',
-    'apps.express',
-    'apps.report',
-    'apps.schedule',
-    'core.sms',
-    'core.messageset',
-    'core.auth_user',
-    'taggit',
-)
-
-SHARED_APPS = tuple(frozenset(INSTALLED_APPS).difference(frozenset(TENANT_APPS)))
-
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
-    # 'core.django.middleware.ProfileAuthenticationMiddleware',
-    # 'db_multitenant.middleware.MultiTenantMiddleware',
-    # 'tenant_schemas.middleware.TenantMiddleware',
+    'core.django.middleware.ProfileAuthenticationMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'apps.tenant.middleware.ProfileTenantMiddleware',
 
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.gzip.GZipMiddleware',
@@ -147,19 +119,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-PUBLIC_SCHEMA_NAME = env('PUBLIC_SCHEMA_NAME', default='public')
-SUPER_SCHEMA_NAME = env('SUPER_SCHEMA_NAME', default='super')
 DATABASES = {
-    # 'default': env.db('DATABASE_URL', default='mysql://root:root@localhost:3306/ozsales'),
-    'default': env.db('DATABASE_URL', default='postgres://youdan:youdan@localhost:5432/youdan')
+    'default': env.db('DATABASE_URL', default='postgres://thor2:thor2@localhost:5432/thor2')
 }
-
-DATABASES['default']['ENGINE'] = 'tenant_schemas.postgresql_backend'
-# DATABASES['default']['ENGINE'] = 'db_multitenant.db.backends.postgresql'
-
-DATABASE_ROUTERS = (
-    'tenant_schemas.routers.TenantSyncRouter',
-)
+DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/

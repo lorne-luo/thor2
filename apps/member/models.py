@@ -2,16 +2,14 @@ import logging
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Group
-from django.db import models, connection
+from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from apps.tenant.models import Tenant
 from core.auth_user.constant import MEMBER_GROUP, PREMIUM_MEMBER_GROUP, FREE_PREMIUM_GROUP
 from core.auth_user.models import AuthUser, UserProfileMixin
 from core.django.constants import COUNTRIES_CHOICES, CURRENCY_CHOICES
-from core.django.models import TenantModelMixin
 
 log = logging.getLogger(__name__)
 
@@ -19,8 +17,7 @@ MONTHLY_FREE_ORDER = 10
 SELLER_MEMBER_PLAN_ID = 'Seller_Member_1'
 
 
-class Seller(UserProfileMixin, TenantModelMixin, models.Model):
-    tenant_id = models.CharField(_('tenant_id'), max_length=128, blank=True)
+class Seller(UserProfileMixin, models.Model):
     auth_user = models.OneToOneField(AuthUser, on_delete=models.CASCADE, related_name='seller', null=True, blank=True)
     name = models.CharField(_('姓名'), max_length=30, blank=True)
     country = models.CharField(_('国家'), max_length=128, choices=COUNTRIES_CHOICES, default='AU', blank=True)
@@ -132,14 +129,9 @@ class Seller(UserProfileMixin, TenantModelMixin, models.Model):
         membership.save()
         self.save(update_fields=['expire_at'])
 
-    @cached_property
-    def tenant(self):
-        return Tenant.objects.filter(pk=self.tenant_id).first()
-
     @staticmethod
     def create_seller(mobile, email, password, premium_account=False):
-        tenant = Tenant.create_tenant()
-        user = AuthUser.objects.create_staff(mobile=mobile, email=email, password=password, tenant_id=tenant.pk)
+        user = AuthUser.objects.create_staff(mobile=mobile, email=email, password=password)
 
         member_group = Group.objects.get(name=MEMBER_GROUP)
         user.groups.add(member_group)
@@ -149,23 +141,9 @@ class Seller(UserProfileMixin, TenantModelMixin, models.Model):
         user.save()
 
         seller = Seller(auth_user=user,
-                        tenant_id=tenant.pk,
-                        schema_name=tenant.schema_name,
                         name=mobile or email)
-        seller.set_schema()
         seller.save()
         return seller
-
-    def set_schema(self):
-        schema_name = self.schema_name or self.tenant.schema_name
-        if schema_name:
-            connection.set_schema(schema_name)
-
-    @cached_property
-    def entry_url(self):
-        if self.tenant and self.tenant.domain_url:
-            return 'http://%s' % self.tenant.domain_url
-        return ''
 
 
 class MembershipOrder(models.Model):

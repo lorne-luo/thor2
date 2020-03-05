@@ -1,19 +1,17 @@
-# coding=utf-8
 import datetime
-from django.db import models
+
 from dateutil.relativedelta import relativedelta
-from django.http import Http404
-from django.utils.translation import ugettext_lazy as _
+from django.db import models
 from django.db.models import F, Sum, Count
 from django.utils import timezone
-from core.django.models import TenantModelMixin
+from django.utils.translation import ugettext_lazy as _
 
 from apps.customer.models import Customer, Address
 from apps.express.models import ExpressOrder
 from apps.order.models import Order, ORDER_STATUS
 
 
-class MonthlyReport(TenantModelMixin, models.Model):
+class MonthlyReport(models.Model):
     month = models.DateField(auto_now_add=False, editable=True, blank=False, null=False,
                              verbose_name=_('Month'))
     order_count = models.PositiveIntegerField(blank=True, null=True)

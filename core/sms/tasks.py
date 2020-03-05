@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
 import logging
+
+from celery.task import task
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
-from celery.task import periodic_task, task
-from celery.schedules import crontab
 
-from apps.tenant.models import Tenant
+from core.aliyun.sms.service import send_cn_sms
 from core.sms.telstra_api_v2 import send_au_sms
 from .models import Sms
-from core.aliyun.sms.service import send_cn_sms
 
 log = logging.getLogger(__name__)
 
@@ -17,10 +15,8 @@ log = logging.getLogger(__name__)
 @task
 def cleanup_sms_history():
     three_month_ago = timezone.now() - relativedelta(months=7)
-    for tenant in Tenant.objects.normal():
-        tenant.set_schema()
-        Sms.objects.filter(time__lt=three_month_ago).delete()
-        log.info('[SMS] Cleanup sms history older than 3 months.')
+    Sms.objects.filter(time__lt=three_month_ago).delete()
+    log.info('[SMS] Cleanup sms history older than 3 months.')
 
 
 @task

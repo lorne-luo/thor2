@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 log = logging.getLogger(__name__)
 
+
 class Cart(models.Model):
     customer = models.ForeignKey(
         'customer.Customer',

@@ -1,13 +1,12 @@
+import datetime
 import logging
 import time
-import Telstra_Messaging
-import datetime
-import redis
-from django.conf import settings
-from django.db import connection
-from Telstra_Messaging.rest import ApiException
 
-from apps.tenant.models import Tenant
+import Telstra_Messaging
+import redis
+from Telstra_Messaging.rest import ApiException
+from django.conf import settings
+
 from core.sms.models import Sms
 
 log = logging.getLogger(__name__)
@@ -112,12 +111,11 @@ def send_au_sms(to, body, app_name=None):
         #  'number_segments': 1}
         api_response = api_instance.send_sms(send_sms_request)
         success = api_response.messages[0].delivery_status == 'MessageWaiting'
-        if connection.schema_name.startswith(Tenant.SCHEMA_NAME_PREFIX):
-            sms = Sms(app_name=app_name, send_to=to, content=body, success=success,
-                      template_code=api_response.messages[0].delivery_status,
-                      remark=api_response.messages[0].message_status_url,
-                      biz_id=api_response.messages[0].delivery_status)
-            sms.save()
+        sms = Sms(app_name=app_name, send_to=to, content=body, success=success,
+                  template_code=api_response.messages[0].delivery_status,
+                  remark=api_response.messages[0].message_status_url,
+                  biz_id=api_response.messages[0].delivery_status)
+        sms.save()
 
         if success:
             counter = r.get(TELSTRA_SMS_MONTHLY_COUNTER) or 0
@@ -136,27 +134,3 @@ def send_au_sms(to, body, app_name=None):
 
 def send_to_admin(body, app_name=None):
     send_au_sms(settings.ADMIN_MOBILE_NUMBER, body, app_name)
-
-# api_instance = Telstra_Messaging.ProvisioningApi(Telstra_Messaging.ApiClient(configuration))
-# provision_number_request = Telstra_Messaging.ProvisionNumberRequest() # ProvisionNumberRequest | A JSON payload containing the required attributes
-# api_response = api_instance.create_subscription(provision_number_request)
-# pprint(api_response)
-#
-# {'description': None,
-#  'destination_address': '+61472880150',
-#  'expiry_date': 1536833534914.0}
-
-
-# api_instance = Telstra_Messaging.AuthenticationApi(Telstra_Messaging.ApiClient(configuration))
-# api_response = api_instance.auth_token(client_id, client_secret, grant_type)
-# pprint(api_response)
-#
-# {'access_token': 'jk93RigKa2gd9oupE7AFi84O6YnE',
-#  'expires_in': '3599',
-#  'token_type': 'Bearer'}
-
-
-# pprint(pro_api.get_subscription())
-# {'active_days': '29',
-#  'destination_address': '+61472880150',
-#  'notify_url': None}

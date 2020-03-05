@@ -84,7 +84,7 @@
     </form>
     <!-- END LOGIN FORM -->
     <!-- BEGIN FORGOT PASSWORD FORM -->
-    <form id="forgotform" method="post" class="form-vertical no-padding no-margin hide" action="{% url 'django.contrib.auth.views.password_reset' %}">
+    <form id="forgotform" method="post" class="form-vertical no-padding no-margin hide" action="">
       {% csrf_token %}
       <p class="center">Enter your e-mail address below to reset your password.</p>
       <div class="control-group">

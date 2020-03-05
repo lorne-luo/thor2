@@ -18,7 +18,7 @@ from taggit.managers import TaggableManager
 
 from core.auth_user.models import AuthUser
 from core.django.constants import COUNTRIES_CHOICES
-from core.django.models import PinYinFieldModelMixin, ResizeUploadedImageModelMixin, TenantModelMixin
+from core.django.models import PinYinFieldModelMixin, ResizeUploadedImageModelMixin
 from config.settings import PRODUCT_PHOTO_FOLDER, MEDIA_URL, MEDIA_ROOT
 
 from core.django.storage import OverwriteStorage
@@ -26,7 +26,7 @@ from core.django.storage import OverwriteStorage
 log = logging.getLogger(__name__)
 
 
-class Brand(TenantModelMixin, models.Model):
+class Brand(models.Model):
     name_en = models.CharField(_('name_en'), max_length=128, blank=False, unique=True)
     name_cn = models.CharField(_('name_cn'), max_length=128, blank=True)
     short_name = models.CharField(_('Abbr'), max_length=128, blank=True)
@@ -60,7 +60,7 @@ def get_product_pic_path(instance, filename):
     return file_path
 
 
-class Product(ResizeUploadedImageModelMixin, PinYinFieldModelMixin, TenantModelMixin, models.Model):
+class Product(ResizeUploadedImageModelMixin, PinYinFieldModelMixin, models.Model):
     code = models.CharField(_('code'), max_length=32, blank=True)
     name_en = models.CharField(_('name_en'), max_length=128, blank=True)
     name_cn = models.CharField(_('name_cn'), max_length=128, blank=True)

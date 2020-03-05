@@ -121,17 +121,3 @@ class ResizeUploadedImageModelMixin(object):
                 setattr(self, image_field_name, InMemoryUploadedFile(
                     output, 'ImageField', "%s.jpg" % image.name.split('.')[0],
                     'image/jpeg', sys.getsizeof(output), None))
-
-
-class TenantModelMixin(models.Model):
-    id = models.IntegerField()
-    uuid = models.UUIDField(primary_key=True, db_index=True, default=uuid.uuid4, editable=False)
-    schema_name = models.CharField(default=get_schema_name, max_length=32, blank=True)
-
-    class Meta:
-        abstract = True
-
-    @property
-    def schema_id(self):
-        from apps.tenant.models import Tenant
-        return self.schema_name.strip(Tenant.SCHEMA_NAME_PREFIX)

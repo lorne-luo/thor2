@@ -260,14 +260,3 @@ class FormAccessRequestViewMixin(object):
         request = getattr(self, 'request')
         kwargs.update({'request': request})
         return kwargs
-
-
-class TenantPublicViewMixin(object):
-    def dispatch(self, request, *args, **kwargs):
-        schema_id = kwargs.get('schema_id', None)
-        from apps.tenant.models import Tenant
-        prefix = Tenant.SCHEMA_NAME_PREFIX
-        schema_name = schema_id if schema_id.startswith(prefix) else '%s%s' % (prefix, schema_id)
-        connection.set_schema(schema_name)
-
-        return super(TenantPublicViewMixin, self).dispatch(request, *args, **kwargs)

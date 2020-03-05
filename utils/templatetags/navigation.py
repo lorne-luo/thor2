@@ -1,6 +1,5 @@
 from django import template
-from django.core import urlresolvers
-
+from django.urls import resolve
 
 register = template.Library()
 
@@ -14,7 +13,7 @@ def current(context, url_name, return_value=' active', **kwargs):
 def current_url_equals(context, url_name, **kwargs):
     resolved = False
     try:
-        resolved = urlresolvers.resolve(context.get('request').path)
+        resolved = resolve(context.get('request').path)
     except:
         pass
     matches = resolved and resolved.url_name == url_name

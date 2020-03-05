@@ -16,7 +16,6 @@ from django.utils.translation import ugettext_lazy as _
 from weixin.pay import WeixinError
 
 from core.aliyun.sms.service import send_cn_sms
-from core.django.models import TenantModelMixin
 from ..customer.models import Customer, Address
 from ..product.models import Product
 from ..schedule.models import forex
@@ -58,7 +57,7 @@ class OrderManager(models.Manager):
         return super(OrderManager, self).get_queryset().filter(status=ORDER_STATUS.FINISHED)
 
 
-class Order(TenantModelMixin, models.Model):
+class Order(models.Model):
     uid = models.CharField(unique=True, max_length=12, null=True, blank=True)
     customer = models.ForeignKey(Customer, blank=False, null=False, verbose_name=_('客户'), on_delete=models.CASCADE)
     address = models.ForeignKey(Address, blank=True, null=True, verbose_name=_('地址'), on_delete=models.CASCADE)
@@ -480,7 +479,7 @@ class Order(TenantModelMixin, models.Model):
         return wx_order.get_jsapi()
 
 
-class OrderProduct(TenantModelMixin, models.Model):
+class OrderProduct(models.Model):
     order = models.ForeignKey(Order, blank=False, null=False, verbose_name=_('Order'), related_name='products',
                               on_delete=models.CASCADE)
     product = models.ForeignKey(Product, blank=True, null=True, verbose_name=_('Product'), on_delete=models.CASCADE)

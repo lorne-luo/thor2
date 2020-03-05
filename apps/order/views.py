@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView
 
 from core.django.permission import SellerOwnerOnlyRequiredMixin, SellerRequiredMixin
-from core.django.views import CommonContextMixin, TenantPublicViewMixin
+from core.django.views import CommonContextMixin
 from .models import Order, ORDER_STATUS, OrderProduct
 from ..customer.models import Customer
 from ..express.views import CarrierInfoRequiredMixin
@@ -220,7 +220,7 @@ class OrderAddDetailView(OrderUpdateView):
             return self.render_to_response(context)
 
 
-class OrderDetailView(TenantPublicViewMixin, CommonContextMixin, UpdateView):
+class OrderDetailView(CommonContextMixin, UpdateView):
     model = Order
     form_class = forms.OrderDetailForm
 
