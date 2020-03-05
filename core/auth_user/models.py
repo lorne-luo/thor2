@@ -1,56 +1,98 @@
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import AbstractUser, PermissionsMixin, UserManager
+from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core import validators
 from django.db import models
 from django.utils import timezone
+from django.utils.deconstruct import deconstructible
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import AbstractUser, PermissionsMixin, UserManager
 
 from core.aliyun.email.tasks import email_send_task
 from core.auth_user.constant import ADMIN_GROUP, PREMIUM_MEMBER_GROUP, FREE_PREMIUM_GROUP
-from core.sms.telstra_api_v2 import send_au_sms
 from core.messageset.models import NotificationContent, SiteMailContent
+from core.sms.telstra_api_v2 import send_au_sms
 
+@deconstructible
+class MobilePhoneValidator(validators.RegexValidator):
+    regex = r'^04[0-9]{8}$|^4[0-9]{8}$|^1[0-9]{10}$'
+    message = _(
+        'Enter a valid username. This value may contain only letters, '
+        'numbers, and @/./+/-/_ characters.'
+    )
+    flags = 0
 
 class AuthUserManager(UserManager):
-    def _create_user(self, password, is_staff, is_superuser, mobile=None, email=None, **extra_fields):
+    def _create_user(self, password, is_staff, is_superuser=False, mobile=None, username=None, **extra_fields):
         """
-        Creates and saves a User with the given username, email and password.
+        Creates and saves a User with the given username, username and password.
         """
         now = timezone.now()
-        if not mobile and not email:
-            raise ValueError('Mobile and email must give one')
-        email = self.normalize_email(email)
-        user = self.model(username=mobile or email, email=email, mobile=mobile, is_staff=is_staff, is_active=True,
+        if not mobile and not username:
+            raise ValueError('Mobile and username must give one')
+        username = self.normalize_email(username)
+        user = self.model(mobile=mobile, username=username, is_staff=is_staff, is_active=True,
                           is_superuser=is_superuser, date_joined=now, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_user(self, mobile=None, email=None, password=None, **extra_fields):
-        return self._create_user(password, False, False, mobile, email, **extra_fields)
+    def create_user(self, mobile=None, username=None, password=None, **extra_fields):
+        return self._create_user(password, False, False, mobile, username, **extra_fields)
 
-    def create_staff(self, mobile=None, email=None, password=None, **extra_fields):
-        return self._create_user(password, True, False, mobile, email, **extra_fields)
+    def create_staff(self, mobile=None, username=None, password=None, **extra_fields):
+        return self._create_user(password, True, False, mobile, username, **extra_fields)
 
-    def create_superuser(self, mobile, email, password, **extra_fields):
-        return self._create_user(password, True, True, mobile=mobile, email=email, **extra_fields)
+    def create_superuser(self, mobile, password, username=None, **extra_fields):
+        return self._create_user(password, True, True, mobile=mobile, username=username, **extra_fields)
 
-    def identify(self, mobile_or_email):
-        if '@' in mobile_or_email:
-            return super(AuthUserManager, self).get(email=mobile_or_email)
+    def identify(self, mobile_or_username):
+        if '@' in mobile_or_username:
+            return super(AuthUserManager, self).filter(username=mobile_or_username).order_by('id').first()
         else:
-            return super(AuthUserManager, self).get(mobile=mobile_or_email)
+            return super(AuthUserManager, self).filter(mobile=mobile_or_username).order_by('id').first()
 
 
-class AuthUser(AbstractUser):
+class AuthUser(AbstractBaseUser, PermissionsMixin):
     WEBSITE = 'WEBSITE'
     WEIXIN = 'WEIXIN'
+    SUPERUSER = 'SUPERUSER'
     USER_TYPE_CHOICES = (
         (WEBSITE, WEBSITE),
         (WEIXIN, WEIXIN),
+        (SUPERUSER, SUPERUSER),
+    )
+    username_validator = UnicodeUsernameValidator()
+
+    username = models.CharField(
+        _('username'),
+        max_length=150,
+        unique=True,
+        help_text=_('Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
+        validators=[username_validator],
+        error_messages={
+            'unique': _("A user with that username already exists."),
+        },
     )
     mobile = models.CharField(_('mobile'), max_length=128, unique=True, blank=True)
     # if type is WEBSIT mobile field is mobile, if type is WEIXIN mobile field is openid
     type = models.CharField(_('type'), max_length=32, choices=USER_TYPE_CHOICES, blank=True, default=WEBSITE)
+    name = models.CharField(_(' name'), max_length=30, blank=True)
+    email = models.EmailField(_('email address'), blank=True)
+    is_staff = models.BooleanField(
+        _('staff status'),
+        default=False,
+        help_text=_('Designates whether the user can log into this admin site.'),
+    )
+    is_active = models.BooleanField(
+        _('active'),
+        default=True,
+        help_text=_(
+            'Designates whether this user should be treated as active. '
+            'Unselect this instead of deleting accounts.'
+        ),
+    )
+    date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
     objects = AuthUserManager()
     REQUIRED_FIELDS = []
@@ -58,7 +100,6 @@ class AuthUser(AbstractUser):
 
     class Meta(AbstractUser.Meta):
         swappable = 'AUTH_USER_MODEL'
-
 
     @cached_property
     def is_premium(self):

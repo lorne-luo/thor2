@@ -131,7 +131,7 @@ class Seller(UserProfileMixin, models.Model):
 
     @staticmethod
     def create_seller(mobile, email, password, premium_account=False):
-        user = AuthUser.objects.create_staff(mobile=mobile, email=email, password=password)
+        user = AuthUser.objects.create_staff(mobile=mobile, username=email, password=password)
 
         member_group = Group.objects.get(name=MEMBER_GROUP)
         user.groups.add(member_group)
